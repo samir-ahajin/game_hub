@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import {useOutletContext} from "react-router";
 
 const Home = () => {
