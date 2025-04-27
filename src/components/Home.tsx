@@ -1,20 +1,24 @@
 // @ts-nocheck
 
 import {useOutletContext} from "react-router";
-
+import Carousel2 from "./Carousel2.tsx";
+import { Button } from "@material-tailwind/react";
 const Home = () => {
     // @ts-ignore
     const { mainBackGroundlist } = useOutletContext();
 
 
+
     return (
-        <div className="w-full h-10/10 bg-black">
-            <ul>
-                {mainBackGroundlist.map((item, index) => (
-                    <li key={item.id + '-' + index}>{item.name}</li>
-                ))}
-            </ul>
-            </div>
+
+            <div className="bg-gray-900/50 w-8/10 flex flex-col items-center justify-center">
+                <h6 className="text-white text-2xl font-bold ">Games of the Week</h6>
+                {
+                    <Carousel2 features={mainBackGroundlist} />
+
+               }</div>
+
+
     );
 };
 

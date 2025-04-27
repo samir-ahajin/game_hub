@@ -42,7 +42,6 @@ function App() {
         const today = new Date();
         const formatted = today.toISOString().split('T')[0];
         try {
-            console.log(API_KEY);
             const endpoint = query ?
                 `${API_BASE_URL}/games?key=${API_KEY}` :
                 `${API_BASE_URL}/games?key=${API_KEY}&page=${pageCount}&page_size=20&dates=2025-01-01,${formatted}`
@@ -63,6 +62,7 @@ function App() {
 
 
         } catch (err) {
+            setErrorDisplay(err.message || 'Failed to fetch games from API');
         }
 
     }
@@ -107,31 +107,30 @@ function App() {
         fecthGameoftheWeek();
     }, [])
 
-    useEffect(() => {
-        if (mainBackGroundlist.length === 0) return;
-
-        // Set the background image every 10 seconds
-        const interval = setInterval(() => {
-            setBackgroundIndex((prevIndex) => (prevIndex + 1) % mainBackGroundlist.length);
-        }, 10000); // 10 seconds
-
-        return () => clearInterval(interval); // Cleanup on unmount
-    }, [mainBackGroundlist]);
-
-    useEffect(() => {
-            console.log(mainBackGroundlist)
-            console.log(backgroundIndex)
-            if (mainBackGroundlist.length > 0) {
-                const currentGame = mainBackGroundlist[backgroundIndex];
-                // @ts-ignore
-                setBgImage(currentGame.background_image);
-
-            }
-        }
-        ,
-        [mainBackGroundlist, backgroundIndex]
-    )
-    ;
+    // useEffect(() => {
+    //     if (mainBackGroundlist.length === 0) return;
+    //
+    //     // Set the background image every 10 seconds
+    //     const interval = setInterval(() => {
+    //         setBackgroundIndex((prevIndex) => (prevIndex + 1) % mainBackGroundlist.length);
+    //     }, 10000); // 10 seconds
+    //
+    //     return () => clearInterval(interval); // Cleanup on unmount
+    // }, [mainBackGroundlist]);
+    //
+    // useEffect(() => {
+    //
+    //         if (mainBackGroundlist.length > 0) {
+    //             const currentGame = mainBackGroundlist[backgroundIndex];
+    //             // @ts-ignore
+    //             setBgImage(currentGame.background_image);
+    //
+    //         }
+    //     }
+    //     ,
+    //     [mainBackGroundlist, backgroundIndex]
+    // )
+    // ;
 
     return (
         <>
@@ -225,7 +224,7 @@ function App() {
 
                 </div>
 
-                <div className="z-0  w-full h-9/10 relative">
+                <div className="z-0  w-full h-9/10 flex items-center justify-center relative">
                     <Outlet  context={
                         navigation === "store"
                             ? { games: [games, setGames], pageCount: [pageCount, setPageCount] }
