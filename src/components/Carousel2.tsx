@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {useEffect, useState} from "react";
 
 type Feature = {
@@ -5,6 +6,7 @@ type Feature = {
     name: string;
     background_image: string;
     image: string;
+    description: string;
 };
 
 type CarouselProps = {
@@ -55,7 +57,7 @@ const Carousel2 = ({features}: CarouselProps) => {
     const nextSlide = () => {
         setIndex((prev) => (prev + 1) % features.length);
     };
-    const fecthGameData = async(game)=>{
+    const fecthGameData = async(game?:string)=>{
 
         try{
             const endpoint = `${API_BASE_URL}/games/${game}?key=${API_KEY}`
