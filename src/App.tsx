@@ -47,10 +47,12 @@ function App() {
                 `${API_BASE_URL}/games?key=${API_KEY}&page=${pageCount}&page_size=20&dates=2025-01-01,${formatted}`
             const response = await fetch(endpoint, API_OPTIONS);
 
+            console.log(API_OPTIONS+endpoint);
             if (!response.ok) {
                 throw new Error("Could not fetch games.");
             }
             const data = await response.json();
+
 
             if (data.Response === 'False') {
 
@@ -103,7 +105,6 @@ function App() {
     //Setting the background image
     useEffect(() => {
 
-        // @ts-ignore
         fecthGameoftheWeek();
     }, [])
 
