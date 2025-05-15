@@ -5,14 +5,9 @@ import {useEffect, useState, useRef} from "react";
 import Loaders from "./Loaders.tsx";
 import Dropdown from "./Dropdown.tsx";
 import Searched from "./Searched.tsx";
+import {API_BASE_URL,API_KEY,API_OPTIONS} from '../App.tsx';
 
-const API_BASE_URL = "https://api.rawg.io/api"
-const API_KEY = import.meta.env.VITE_RAWG_API_KEY
-const API_OPTIONS = {
-    method: "GET",
-    accept: 'application/json',
-    authorization: `Bearer ${API_KEY}`,
-}
+
 
 
 const Store = () => {
@@ -20,7 +15,7 @@ const Store = () => {
     const [selectedOption, setSelectedOption] = useState('All');
     const [gamelist, setGamelist] = useState([]);
     const [pagesize, setPagesize] = useState(1);
-    const [pagesize2, setPagesize2] = useState(1)
+    const [pagesize2,setPagesize2] = useState(1)
     const [searchValue, setSearchValue] = useState("")
     const [searchedGame, setSearchedGame] = useState([]);
 
@@ -37,10 +32,11 @@ const Store = () => {
     const getGames = async (type) => {
 
         try {
-            const endpoint = type == 'genre' ? `${API_BASE_URL}/genres?key=${API_KEY}`
+            const endpoint = type == 'genre' ? `${API_BASE_URL}/games?key=${API_KEY}`
                 : type == 'gameList' && selectedOption != 'All' ? `${API_BASE_URL}/games?genres=${selectedOption.toLowerCase()}&key=${API_KEY}&page=${pagesize}`
-                    : type == 'nameSearch' ? `${API_BASE_URL}/games?search=${searchValue}&key=${API_KEY}&page=${pagesize2}`
+                    : type == 'nameSearch' ? `${API_BASE_URL}/games?search=${encodeURIComponent(searchValue)}&key=${API_KEY}&page=${pagesize2}`
                         : `${API_BASE_URL}/games?key=${API_KEY}&page=${pagesize}`;
+
             const response = await fetch(endpoint, API_OPTIONS);
 
 
@@ -61,19 +57,20 @@ const Store = () => {
 
                 case 'nameSearch':
                     if(searchValue != ''){
-                        console.log(data.results)
-                        setSearchedGame(data.results || [])
-
-
+                        setSearchedGame(data.results || []);
                     }
                     break;
             }
 
         } catch (err) {
-            // @ts-ignore
-            alert(err.message || 'Failed to fetch genres from API');
+            if (err) {
+                console.warn("API key not defined. Skipping fetch.");
+                return;
+            }
         }
     }
+
+
 
     // page behavior
     const handlePageSizeChange = (action, pageQuery) => {
@@ -115,10 +112,12 @@ const Store = () => {
 
     //   USEFFECTS
 
-    //getting the defaule genre list
+    //getting the default genre list
     useEffect(() => {
         getGames('genre');
-    }, []);
+    },[]);
+
+
 
     //
     useEffect(() => {
@@ -187,20 +186,43 @@ const Store = () => {
 
                 />
                 <div>
-                    <div className=" flex relative flex-col gap-1 p-1.5">
-                        {gamelist
-                            .sort((a, b) => a.name.localeCompare(b.name))
-                            .map((data, index) => (
+                    <div className="flex flex-col gap-1 p-1.5 relative">
+                        {/* Scrollable list container */}
+                        <div className="max-h-64 overflow-y-auto pr-1">
+                            {gamelist
+                                .sort((a, b) => a.name.localeCompare(b.name))
+                                .map((data, index) => (
+                                    <Link
+                                        key={index}
+                                        to={`${data.id}`}
+                                        className="w-full overflow-hidden gap-4 text-ellipsis bg-gray-800 text-slate-100 flex
+                                        items-center rounded-md p-3 transition-all hover:bg-slate-100 hover:text-gray-900
+                                        focus:text-white active:bg-slate-100"
+                                        onClick={() => {
+                                            handleSelectGame(data, 'leftMenu');
+                                        }}
+                                    >
+                                        {data.name}
+                                    </Link>
+                                ))}
+                        </div>
 
-                                < Link key={index} to={`${data.id}`}
-                                       className="w-full overflow-hidden text-ellipsis  bg-gray-800 text-slate-100 flex items-center rounded-md p-3 transition-all hover:bg-slate-100 hover:text-gray-900 focus:text-white active:bg-slate-100"
-                                       onClick={()=>{handleSelectGame(data,'leftMenu')}}
-                                >{data.name}</Link>
-
-                            ))}
+                        {/* Navigation buttons */}
+                        <div className="flex justify-between mt-2">
+                            <button
+                                className="px-3 py-1 rounded bg-gray-700 text-white hover:bg-gray-600"
+                                onClick={() => handlePageSizeChange('prev', 'leftMenu')}
+                            >
+                                Prev
+                            </button>
+                            <button
+                                className="px-3 py-1 rounded bg-gray-700 text-white hover:bg-gray-600"
+                                onClick={() => handlePageSizeChange('next', 'leftMenu')}
+                            >
+                                Next
+                            </button>
+                        </div>
                     </div>
-                    <button onClick={() => (handlePageSizeChange('next', 'leftMenu'))}>Next</button>
-                    <button onClick={() => (handlePageSizeChange('prev', 'leftMenu'))}>Prev</button>
                 </div>
             </div>
 
@@ -208,7 +230,7 @@ const Store = () => {
             <div
                 className="col-span-12 md:col-span-8 p-4 shadow-md bg-gray-900/25 order-2 md:order-2 flex flex-col">
                 {/*//add some context here*/}
-                <Outlet />
+                <Outlet context={gameDetails}/>
             </div>
 
             <div className="col-span-12 md:col-span-2 p-4 bg-gray-900/25 order-3 md:order-3">
@@ -220,6 +242,7 @@ const Store = () => {
                             handlePageSizeChange: handlePageSizeChange,
                             handleSearch: handleSearch,
                             handleKeyDown: handleKeyDown,
+                            handleSelectGame:handleSelectGame,
                             searchValue: searchValue
                         }}/>
 

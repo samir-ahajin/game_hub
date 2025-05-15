@@ -6,12 +6,13 @@ type searchVal = {
         setSearchedGame: (value: string) => void,
         handlePageSizeChange: (value1: string,value2:string) => void,
         handleSearch: () => void,
-        handleKeyDown: (value:any)=> void,
+        handleKeyDown: (...value: any )=> void,
+        handleSelectGame: (...value: any )=> void,
         searchValue:string,
     };
 };
 const Searched = ({searchSettings}:searchVal) => {
-   const {searchedGame,searchValue, handlePageSizeChange,handleSearch,handleKeyDown} = searchSettings;
+   const {searchedGame,searchValue, handlePageSizeChange,handleSearch,handleKeyDown,handleSelectGame} = searchSettings;
     return (
         <><div>
             <div className="relative">
@@ -51,6 +52,9 @@ const Searched = ({searchSettings}:searchVal) => {
                         < Link key={index} to={`${value.id}`}
                                className="w-full overflow-hidden
                                             text-ellipsis  bg-gray-800 text-slate-100 flex items-center rounded-md p-3 transition-all hover:bg-slate-100 hover:text-gray-900 focus:text-white active:bg-slate-100"
+                               onClick={() => {
+                                   handleSelectGame(value, 'leftMenu');
+                               }}
                         >{value.name}</Link>
                     )
 

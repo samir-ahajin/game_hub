@@ -1,20 +1,24 @@
 // import { useState } from 'react'
 // import reactLogo from './assets/react.svg'
 // import viteLogo from '/vite.svg'
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import {Button, Disclosure, DisclosureButton, DisclosurePanel} from '@headlessui/react'
+import {Disclosure, DisclosureButton, DisclosurePanel} from '@headlessui/react'
 import {Bars3Icon, XMarkIcon} from '@heroicons/react/24/outline'
 import {Link, Outlet} from "react-router";
 import {useEffect, useState} from "react";
 import MatrixRain from "./components/MatrixRain.tsx";
 
-const API_BASE_URL = "https://api.rawg.io/api"
-const API_KEY = import.meta.env.VITE_RAWG_API_KEY
-const API_OPTIONS = {
+
+export const API_BASE_URL = "https://api.rawg.io/api";
+
+export const API_KEY = import.meta.env.VITE_RAWG_API_KEY;
+
+export const API_OPTIONS = {
     method: "GET",
     accept: 'application/json',
     authorization: `Bearer ${API_KEY}`,
-}
+};
 
 
 function classNames(...classes) {
@@ -38,36 +42,37 @@ function App() {
 
     const [cartCon, setCartCon] = useState([])
     // @ts-ignore
-    const fetchGames = async (query = '') => {
-        const today = new Date();
-        const formatted = today.toISOString().split('T')[0];
-        try {
-            const endpoint = query ?
-                `${API_BASE_URL}/games?key=${API_KEY}` :
-                `${API_BASE_URL}/games?key=${API_KEY}&page=${pageCount}&page_size=20&dates=2025-01-01,${formatted}`
-            const response = await fetch(endpoint, API_OPTIONS);
+    // const fetchGames = async (query = '') => {
+    //     const today = new Date();
+    //     const formatted = today.toISOString().split('T')[0];
+    //     try {
+    //         const endpoint = query ?
+    //             `${API_BASE_URL}/games?key=${API_KEY}` :
+    //             `${API_BASE_URL}/games?key=${API_KEY}&page=${pageCount}&page_size=20&dates=2025-01-01,${formatted}`
+    //         const response = await fetch(endpoint, API_OPTIONS);
+    //
+    //         console.log(API_OPTIONS+endpoint);
+    //         if (!response.ok) {
+    //             throw new Error("Could not fetch games.");
+    //         }
+    //         const data = await response.json();
+    //
+    //
+    //         if (data.Response === 'False') {
+    //
+    //             setErrorDisplay(data.error || 'Failed to fetch games from API');
+    //             setGames([])
+    //
+    //         }
+    //         setGames(data.results || [])
+    //
+    //
+    //     } catch (err) {
+    //         setErrorDisplay(err.message || 'Failed to fetch games from API');
+    //     }
+    //
+    // }
 
-            console.log(API_OPTIONS+endpoint);
-            if (!response.ok) {
-                throw new Error("Could not fetch games.");
-            }
-            const data = await response.json();
-
-
-            if (data.Response === 'False') {
-
-                setErrorDisplay(data.error || 'Failed to fetch games from API');
-                setGames([])
-
-            }
-            setGames(data.results || [])
-
-
-        } catch (err) {
-            setErrorDisplay(err.message || 'Failed to fetch games from API');
-        }
-
-    }
     const fecthGameoftheWeek = async (): Promise<void> => {
         const today = new Date();
         const dayOfWeek = today.getDay(); // 0 (Sunday) to 6 (Saturday)
@@ -78,8 +83,9 @@ function App() {
         monday.setDate(today.getDate() + mondayOffset);
         const sunday = new Date(today);
         sunday.setDate(today.getDate() + sundayOffset);
-        // @ts-ignore
+
         const formatDate = (d) => d.toISOString().split('T')[0];
+
 
         try {
             const endpoint = `${API_BASE_URL}/games?key=${API_KEY}&ordering=-rating&page_size=20&dates=${formatDate(monday)},${formatDate(sunday)}`;
@@ -93,11 +99,10 @@ function App() {
                 setErrorDisplay(data.error || 'Failed to fetch game of the week from API');
                 setMainBackGroundlist([])
             }
-            // @ts-ignore
             setMainBackGroundlist(data.results.filter((datum) => datum.background_image != null) || [])
 
         } catch (error) {
-
+            console.log(error.message);
         }
     }
 

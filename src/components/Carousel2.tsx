@@ -1,6 +1,7 @@
 // @ts-nocheck
 import {useEffect, useState} from "react";
-
+import {API_BASE_URL,API_KEY,API_OPTIONS} from '../App.tsx';
+import {translateDescriptionToEnglish} from "./translator.ts";
 type Feature = {
     id: string;
     name: string;
@@ -12,19 +13,14 @@ type Feature = {
 type CarouselProps = {
     features: Feature[];
 };
-const API_BASE_URL = "https://api.rawg.io/api"
-const API_KEY = import.meta.env.VITE_RAWG_API_KEY
-const API_OPTIONS = {
-    method: "GET",
-    accept: 'application/json',
-    authorization: `Bearer ${API_KEY}`,
-}
+
 
 
 
 const Carousel2 = ({features}: CarouselProps) => {
     const [index, setIndex] = useState(0);
     const [gameData, setGameData] = useState({});
+    const [translatedDesc, setTranslatedDesc] = useState("");
 
 
     // Autoplay every 10 seconds
@@ -44,7 +40,14 @@ const Carousel2 = ({features}: CarouselProps) => {
         }
     }, [index, features]);
 
-
+    useEffect(() => {
+        // Translate the description when it changes.
+        if (gameData.description) {
+            translateDescriptionToEnglish(gameData.description).then((translated:string) => {
+                setTranslatedDesc(translated);
+            });
+        }
+    }, [gameData]);
 
     if (!features || features.length === 0) return null;
 
@@ -68,7 +71,7 @@ const Carousel2 = ({features}: CarouselProps) => {
             }
             const data = await response.json();
 
-            setGameData(data || {})
+             setGameData(data || {});
         }
         catch(err){
             // @ts-ignore
@@ -132,10 +135,10 @@ const Carousel2 = ({features}: CarouselProps) => {
                                     <h2 className="text-xl font-bold">{current.name || "No Name"}</h2><h2>{index+1}/{features.length}</h2>
                                     </div>
                                     {/* Use dangerouslySetInnerHTML to render HTML description */}
-                                    {gameData.description && (
+                                    {translatedDesc && (
                                         <p
                                             dangerouslySetInnerHTML={{
-                                                __html: gameData.description,
+                                                __html: translatedDesc,
                                             }}
                                             className="text-gray-500 line-clamp-4"
                                         />

@@ -1,9 +1,15 @@
 import Card from './Card';
+import {useOutletContext} from "react-router";
+
+
 
 const GameDetail = () => {
+    const   gameDetails = useOutletContext()
+
+
     return (
         <div>
-        <Card></Card>
+        <Card gameDetails={gameDetails}></Card>
         </div>
     );
 };
