@@ -1,7 +1,7 @@
 // @ts-nocheck
 import {useEffect, useState} from "react";
 import {API_BASE_URL,API_KEY,API_OPTIONS} from '../App.tsx';
-import {translateDescriptionToEnglish} from "./translator.ts";
+
 type Feature = {
     id: string;
     name: string;
@@ -40,14 +40,6 @@ const Carousel2 = ({features}: CarouselProps) => {
         }
     }, [index, features]);
 
-    useEffect(() => {
-        // Translate the description when it changes.
-        if (gameData.description) {
-            translateDescriptionToEnglish(gameData.description).then((translated:string) => {
-                setTranslatedDesc(translated);
-            });
-        }
-    }, [gameData]);
 
     if (!features || features.length === 0) return null;
 
@@ -135,10 +127,10 @@ const Carousel2 = ({features}: CarouselProps) => {
                                     <h2 className="text-xl font-bold">{current.name || "No Name"}</h2><h2>{index+1}/{features.length}</h2>
                                     </div>
                                     {/* Use dangerouslySetInnerHTML to render HTML description */}
-                                    {translatedDesc && (
+                                    {gameData && (
                                         <p
                                             dangerouslySetInnerHTML={{
-                                                __html: translatedDesc,
+                                                __html: gameData.description,
                                             }}
                                             className="text-gray-500 line-clamp-4"
                                         />

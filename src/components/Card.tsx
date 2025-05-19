@@ -1,10 +1,11 @@
 import { useOutletContext } from "react-router-dom";
 import {API_BASE_URL,API_KEY,API_OPTIONS} from '../App.tsx';
 import {useEffect, useState} from "react";
-import {translateDescriptionToEnglish} from "./translator.ts";
+
 type GameDetails = {
     id:number,
     name: string,
+    description: string,
     rating: number,
 };
 const useGameDetails = () => {
@@ -13,7 +14,7 @@ const useGameDetails = () => {
 const Card = (  ) => {
 
     const gameDetails = useGameDetails();
-    const [translatedDesc, setTranslatedDesc] = useState("");
+
     const [gameCardInfo, setGameCardInfo] = useState({});
 
     const fetchGameData = (game?: number) => {
@@ -38,15 +39,8 @@ const Card = (  ) => {
         fetchGameData(gameDetails.id);
 
     }, [gameDetails]);
-    useEffect(() => {
-        // Translate the description when it changes.
-        if (gameCardInfo.description) {
-            translateDescriptionToEnglish(gameCardInfo.description).then((translated:string) => {
-                setTranslatedDesc(translated);
-            });
-        }
-    }, [gameCardInfo]);
 
+    //setting the star color
     function renderStarRating(rating: number) {
         const fullStars = Math.floor(rating);
         const hasHalfStar = rating % 1 >= 0.25 && rating % 1 < 0.75;
@@ -107,7 +101,7 @@ const Card = (  ) => {
                             className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-sm dark:bg-blue-200
                             dark:text-blue-800 ms-3">{gameDetails.rating}</span>
                     </div>
-                    <div className="text-gray-900 dark:text-white" dangerouslySetInnerHTML={{ __html: translatedDesc || '' }} />
+                    <div className="text-gray-900 dark:text-white" dangerouslySetInnerHTML={{ __html: gameCardInfo.description || '' }} />
                     <div className="flex items-center justify-between">
                         <span className="text-3xl font-bold text-gray-900 dark:text-white">$599</span>
                         <a href="#"

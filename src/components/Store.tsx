@@ -6,7 +6,8 @@ import Loaders from "./Loaders.tsx";
 import Dropdown from "./Dropdown.tsx";
 import Searched from "./Searched.tsx";
 import {API_BASE_URL,API_KEY,API_OPTIONS} from '../App.tsx';
-
+import {useDebounce} from "react-use";
+import {updateCartValue} from "../appwrite.js";
 
 
 
@@ -18,9 +19,12 @@ const Store = () => {
     const [pagesize2,setPagesize2] = useState(1)
     const [searchValue, setSearchValue] = useState("")
     const [searchedGame, setSearchedGame] = useState([]);
+    
 
     const [gameDetails, setGameDetails] = useState({});
 
+    //delay or debouncing
+    const [debounceSearch, setDebounceSearch] = useState("");
     //determine changes
     const prevPagesizeRef = useRef(pagesize);
     const prevPagesize2Ref = useRef(pagesize2);
@@ -111,15 +115,11 @@ const Store = () => {
     }
 
     //   USEFFECTS
-
     //getting the default genre list
     useEffect(() => {
         getGames('genre');
     },[]);
 
-
-
-    //
     useEffect(() => {
         //setting the value for every genre select
         if (selectedOption.toLowerCase() != prevSelectedOptionRef.current.toLowerCase()) {
@@ -134,22 +134,11 @@ const Store = () => {
             }
 
         }
-        //setting the value for every search
-        if (searchValue.toLowerCase() != prevSearchValueRef.current.toLowerCase()) {
-            if (searchValue.toLowerCase() != prevSearchValueRef.current.toLowerCase()) {
-                setPagesize2(1); // This will trigger a state update
 
-            }
-            if (searchValue.toLowerCase() != prevSearchValueRef.current.toLowerCase() && pagesize2 == 1) {
-
-                getGames('nameSearch');
-            }
-        }
 
         prevSelectedOptionRef.current = selectedOption;
-        prevSearchValueRef.current = searchValue;
-    }, [selectedOption, searchValue]);
 
+    }, [selectedOption]);
 
     // useEffect for page
     useEffect(() => {
@@ -167,6 +156,26 @@ const Store = () => {
 
 
     }, [pagesize, pagesize2]);
+
+    useDebounce(()=>setDebounceSearch(searchValue),500,[searchValue])
+    useEffect(() => {
+        //setting the value for every search
+        if (debounceSearch.toLowerCase() != prevSearchValueRef.current.toLowerCase()) {
+            if (debounceSearch.toLowerCase() != prevSearchValueRef.current.toLowerCase()) {
+                setPagesize2(1); // This will trigger a state update
+
+            }
+            if (debounceSearch.toLowerCase() != prevSearchValueRef.current.toLowerCase() && pagesize2 == 1) {
+
+                getGames('nameSearch');
+
+            }
+        }
+        prevSearchValueRef.current = debounceSearch;
+
+        updateCartValue();
+
+    }, [debounceSearch]);
 
 
     // useEffect(() => {

@@ -7,12 +7,15 @@ type searchVal = {
         handlePageSizeChange: (value1: string,value2:string) => void,
         handleSearch: () => void,
         handleKeyDown: (...value: any )=> void,
-        handleSelectGame: (...value: any )=> void,
+        handleSelectGame: (value: string,value1:string )=> void,
         searchValue:string,
     };
 };
+
+
 const Searched = ({searchSettings}:searchVal) => {
    const {searchedGame,searchValue, handlePageSizeChange,handleSearch,handleKeyDown,handleSelectGame} = searchSettings;
+
     return (
         <><div>
             <div className="relative">
@@ -30,6 +33,7 @@ const Searched = ({searchSettings}:searchVal) => {
                 type="search"
                 id="default-search"
                 onKeyDown={(e)=>{handleKeyDown(e)}}
+                onChange={()=>{handleSearch()}}
                 className="block w-full p-4 ps-10 text-sm text-gray-200 border border-gray-800 rounded-full bg-gray-800
              focus:bg-white focus:text-black focus:ring-blue-500  focus:border-white
              dark:bg-gray-700 dark:border-white focus:outline-none dark:placeholder-white dark:text-white
@@ -47,7 +51,7 @@ const Searched = ({searchSettings}:searchVal) => {
 
             {searchValue == ""?(<div>No Search Yet</div>):(
                 searchedGame
-                .map((value:any ,index:any)=>{
+                .map((value:any ,index:number)=>{
                     return(
                         < Link key={index} to={`${value.id}`}
                                className="w-full overflow-hidden
