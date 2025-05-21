@@ -140,7 +140,7 @@ function App() {
 
     return (
         <>
-            <MatrixRain/>
+            <MatrixRain     />
 
 
             <div className="w-full h-screen p-8 md:p-12  bg-cover bg-center transition-all duration-500 ease-in-out relative z-0 text-white"

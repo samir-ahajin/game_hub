@@ -5,10 +5,9 @@ import {useEffect, useState, useRef} from "react";
 import Loaders from "./Loaders.tsx";
 import Dropdown from "./Dropdown.tsx";
 import Searched from "./Searched.tsx";
-import {API_BASE_URL,API_KEY,API_OPTIONS} from '../App.tsx';
+import {API_BASE_URL, API_KEY, API_OPTIONS} from '../App.tsx';
 import {useDebounce} from "react-use";
 import {updateCartValue} from "../appwrite.js";
-
 
 
 const Store = () => {
@@ -16,10 +15,10 @@ const Store = () => {
     const [selectedOption, setSelectedOption] = useState('All');
     const [gamelist, setGamelist] = useState([]);
     const [pagesize, setPagesize] = useState(1);
-    const [pagesize2,setPagesize2] = useState(1)
+    const [pagesize2, setPagesize2] = useState(1)
     const [searchValue, setSearchValue] = useState("")
     const [searchedGame, setSearchedGame] = useState([]);
-    
+
 
     const [gameDetails, setGameDetails] = useState({});
 
@@ -36,7 +35,7 @@ const Store = () => {
     const getGames = async (type) => {
 
         try {
-            const endpoint = type == 'genre' ? `${API_BASE_URL}/games?key=${API_KEY}`
+            const endpoint = type == 'genre' ? `${API_BASE_URL}/genres?key=${API_KEY}`
                 : type == 'gameList' && selectedOption != 'All' ? `${API_BASE_URL}/games?genres=${selectedOption.toLowerCase()}&key=${API_KEY}&page=${pagesize}`
                     : type == 'nameSearch' ? `${API_BASE_URL}/games?search=${encodeURIComponent(searchValue)}&key=${API_KEY}&page=${pagesize2}`
                         : `${API_BASE_URL}/games?key=${API_KEY}&page=${pagesize}`;
@@ -60,7 +59,7 @@ const Store = () => {
                     break;
 
                 case 'nameSearch':
-                    if(searchValue != ''){
+                    if (searchValue != '') {
                         setSearchedGame(data.results || []);
                     }
                     break;
@@ -73,7 +72,6 @@ const Store = () => {
             }
         }
     }
-
 
 
     // page behavior
@@ -94,7 +92,7 @@ const Store = () => {
     }
 
     //setting card data when game clicked
-    const handleSelectGame = (gameData,fromList) => {
+    const handleSelectGame = (gameData, fromList) => {
 
         setGameDetails(gameData)
 
@@ -118,7 +116,7 @@ const Store = () => {
     //getting the default genre list
     useEffect(() => {
         getGames('genre');
-    },[]);
+    }, []);
 
     useEffect(() => {
         //setting the value for every genre select
@@ -157,7 +155,7 @@ const Store = () => {
 
     }, [pagesize, pagesize2]);
 
-    useDebounce(()=>setDebounceSearch(searchValue),500,[searchValue])
+    useDebounce(() => setDebounceSearch(searchValue), 500, [searchValue])
     useEffect(() => {
         //setting the value for every search
         if (debounceSearch.toLowerCase() != prevSearchValueRef.current.toLowerCase()) {
@@ -183,7 +181,7 @@ const Store = () => {
     // }, [gameData]);
 
     return (
-        <div className="    w-full h-10/10 grid grid-cols-12 gap-4">
+        <div className=" w-full h-10/10 grid grid-cols-12 gap-4">
             {/* Left Column (Col Span 2) */}
             <div className="col-span-12 md:col-span-2 p-4 bg-gray-900/25 order-1 md:order-1">
                 <h1>CATEGORIES</h1>
@@ -195,41 +193,63 @@ const Store = () => {
 
                 />
                 <div>
-                    <div className="flex flex-col gap-1 p-1.5 relative">
+                    <div className="flex flex-col gap-4 p-1.5 relative">
                         {/* Scrollable list container */}
-                        <div className="max-h-64 overflow-y-auto pr-1">
-                            {gamelist
-                                .sort((a, b) => a.name.localeCompare(b.name))
-                                .map((data, index) => (
-                                    <Link
-                                        key={index}
-                                        to={`${data.id}`}
-                                        className="w-full overflow-hidden gap-4 text-ellipsis bg-gray-800 text-slate-100 flex
-                                        items-center rounded-md p-3 transition-all hover:bg-slate-100 hover:text-gray-900
-                                        focus:text-white active:bg-slate-100"
-                                        onClick={() => {
-                                            handleSelectGame(data, 'leftMenu');
-                                        }}
-                                    >
-                                        {data.name}
-                                    </Link>
-                                ))}
+                        <div className="max-h-73 overflow-y-auto pr-1">
+                            <div className="flex flex-col gap-2">
+                                <div className="flex flex-col gap-2">
+                                    {gamelist
+                                        .sort((a, b) => a.name.localeCompare(b.name))
+                                        .map((data, index) => (
+                                            <Link
+                                                key={index}
+                                                to={`${data.id}`}
+                                                className="flex h-[70px] bg-gray-800 rounded-lg overflow-hidden transition hover:bg-gray-700"
+                                                onClick={() => handleSelectGame(data, 'leftMenu')}
+                                            >
+                                                <div className="relative w-1/4 min-w-[25%] overflow-hidden">
+                                                    <img
+                                                        src={data.background_image || '/default-avatar.png'}
+                                                        alt={data.name}
+                                                        className="absolute top-0 left-0 w-full h-full object-cover "
+                                                    />
+                                                </div>
+
+                                                <div className="w-3/4 px-3 py-2 flex flex-col justify-center overflow-hidden">
+                                                <span className="text-sm font-medium text-slate-200 truncate">
+                                                    {data.name}
+                                                </span>
+                                                    <span className="text-xs text-slate-400 truncate">
+                                                    {data.role || 'Game Info'}
+                                                </span>
+                                                </div>
+                                            </Link>
+                                        ))}
+                                </div>
+                            </div>
                         </div>
 
                         {/* Navigation buttons */}
                         <div className="flex justify-between mt-2">
-                            <button
-                                className="px-3 py-1 rounded bg-gray-700 text-white hover:bg-gray-600"
-                                onClick={() => handlePageSizeChange('prev', 'leftMenu')}
-                            >
-                                Prev
-                            </button>
-                            <button
-                                className="px-3 py-1 rounded bg-gray-700 text-white hover:bg-gray-600"
-                                onClick={() => handlePageSizeChange('next', 'leftMenu')}
-                            >
-                                Next
-                            </button>
+
+                            {gamelist.length > 0 && (
+                                <>
+                                    {pagesize > 1 && (
+                                        <button
+                                            className="px-3 py-1 rounded bg-gray-700 text-white hover:bg-gray-600"
+                                            onClick={() => handlePageSizeChange('prev', 'leftMenu')}
+                                        >
+                                            Prev
+                                        </button>
+                                    )}
+                                    <button
+                                        className="px-3 py-1 rounded bg-gray-700 text-white hover:bg-gray-600"
+                                        onClick={() => handlePageSizeChange('next', 'leftMenu')}
+                                    >
+                                        Next
+                                    </button>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -245,15 +265,16 @@ const Store = () => {
             <div className="col-span-12 md:col-span-2 p-4 bg-gray-900/25 order-3 md:order-3">
 
 
-                        <Searched searchSettings={{
-                            searchedGame: searchedGame,
-                            setSearchedGame: setSearchedGame,
-                            handlePageSizeChange: handlePageSizeChange,
-                            handleSearch: handleSearch,
-                            handleKeyDown: handleKeyDown,
-                            handleSelectGame:handleSelectGame,
-                            searchValue: searchValue
-                        }}/>
+                <Searched searchSettings={{
+                    searchedGame: searchedGame,
+                    setSearchedGame: setSearchedGame,
+                    handlePageSizeChange: handlePageSizeChange,
+                    handleSearch: handleSearch,
+                    handleKeyDown: handleKeyDown,
+                    handleSelectGame: handleSelectGame,
+                    pageSize2:pagesize2,
+                    searchValue: searchValue
+                }}/>
 
 
             </div>

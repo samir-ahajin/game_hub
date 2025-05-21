@@ -1,7 +1,7 @@
 import { useOutletContext } from "react-router-dom";
 import {API_BASE_URL,API_KEY,API_OPTIONS} from '../App.tsx';
 import {useEffect, useState} from "react";
-
+import ToastModal from "./ToastModal.tsx";
 type GameDetails = {
     id:number,
     name: string,
@@ -16,6 +16,11 @@ const Card = (  ) => {
     const gameDetails = useGameDetails();
 
     const [gameCardInfo, setGameCardInfo] = useState({});
+
+    const [showToast, setShowToast] = useState(false)
+    const [addCart, setAddCart] = useState(false)
+
+
 
     const fetchGameData = (game?: number) => {
         const endpoint = `${API_BASE_URL}/games/${game}?key=${API_KEY}`;
@@ -35,10 +40,26 @@ const Card = (  ) => {
                 alert(err.message || "Failed to fetch game from API");
             });
     };
+    const handleToast = ()=>{
+        setShowToast(true);
+    }
+
     useEffect(() => {
         fetchGameData(gameDetails.id);
 
     }, [gameDetails]);
+
+    useEffect(() => {
+
+        const timer = setInterval(() => {
+            setShowToast(false);
+        }, 5200);
+
+        return () => clearInterval(timer);
+    }, [showToast]);
+
+
+
 
     //setting the star color
     function renderStarRating(rating: number) {
@@ -104,7 +125,7 @@ const Card = (  ) => {
                     <div className="text-gray-900 dark:text-white" dangerouslySetInnerHTML={{ __html: gameCardInfo.description || '' }} />
                     <div className="flex items-center justify-between">
                         <span className="text-3xl font-bold text-gray-900 dark:text-white">$599</span>
-                        <a href="#"
+                        <a onClick={()=>{handleToast()}}
                            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300
                            font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700
                            dark:focus:ring-blue-800">Add
@@ -112,6 +133,12 @@ const Card = (  ) => {
                     </div>
                 </div>
             </div>
+
+            {showToast && (
+                <>
+                    <ToastModal show={showToast} onClose={() => {setShowToast(false)}}/>
+                </>
+               )}
         </>
     );
 };
