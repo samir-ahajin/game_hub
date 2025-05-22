@@ -7,15 +7,20 @@ import Dropdown from "./Dropdown.tsx";
 import Searched from "./Searched.tsx";
 import {API_BASE_URL, API_KEY, API_OPTIONS} from '../App.tsx';
 import {useDebounce} from "react-use";
-import {updateCartValue} from "../appwrite.js";
+import {updateCartValue, updateSearchValue} from "../appwrite.js";
+import { useOutletContext } from "react-router-dom";
+
 
 
 const Store = () => {
+    const {emailCart, setEmailCart } = useOutletContext();
+
+    
     const [genres, setGenres] = useState([])
     const [selectedOption, setSelectedOption] = useState('All');
-    const [gamelist, setGamelist] = useState([]);
-    const [pagesize, setPagesize] = useState(1);
-    const [pagesize2, setPagesize2] = useState(1)
+    const [gameList, setGameList] = useState([]);
+    const [pageSize, setPageSize] = useState(1);
+    const [pageSize2, setPageSize2] = useState(1)
     const [searchValue, setSearchValue] = useState("")
     const [searchedGame, setSearchedGame] = useState([]);
 
@@ -25,8 +30,8 @@ const Store = () => {
     //delay or debouncing
     const [debounceSearch, setDebounceSearch] = useState("");
     //determine changes
-    const prevPagesizeRef = useRef(pagesize);
-    const prevPagesize2Ref = useRef(pagesize2);
+    const prevPageSizeRef = useRef(pageSize);
+    const prevPageSize2Ref = useRef(pageSize2);
     const prevSelectedOptionRef = useRef(selectedOption);
     const prevSearchValueRef = useRef(searchValue);
 
@@ -36,9 +41,9 @@ const Store = () => {
 
         try {
             const endpoint = type == 'genre' ? `${API_BASE_URL}/genres?key=${API_KEY}`
-                : type == 'gameList' && selectedOption != 'All' ? `${API_BASE_URL}/games?genres=${selectedOption.toLowerCase()}&key=${API_KEY}&page=${pagesize}`
-                    : type == 'nameSearch' ? `${API_BASE_URL}/games?search=${encodeURIComponent(searchValue)}&key=${API_KEY}&page=${pagesize2}`
-                        : `${API_BASE_URL}/games?key=${API_KEY}&page=${pagesize}`;
+                : type == 'gameList' && selectedOption != 'All' ? `${API_BASE_URL}/games?genres=${selectedOption.toLowerCase()}&key=${API_KEY}&page=${pageSize}`
+                    : type == 'nameSearch' ? `${API_BASE_URL}/games?search=${encodeURIComponent(searchValue)}&key=${API_KEY}&page=${pageSize2}`
+                        : `${API_BASE_URL}/games?key=${API_KEY}&page=${pageSize}`;
 
             const response = await fetch(endpoint, API_OPTIONS);
 
@@ -54,7 +59,7 @@ const Store = () => {
                     setGenres(data.results || [])
                     break;
                 case 'gameList':
-                    setGamelist(data.results || [])
+                    setGameList(data.results || [])
 
                     break;
 
@@ -78,15 +83,15 @@ const Store = () => {
     const handlePageSizeChange = (action, pageQuery) => {
         if (pageQuery == 'leftMenu') {
             if (action == 'next') {
-                setPagesize(pagesize + 1);
+                setPageSize(pageSize + 1);
             } else if (action == 'prev') {
-                setPagesize(pagesize - 1 == 0 ? 1 : pagesize - 1);
+                setPageSize(pageSize - 1 == 0 ? 1 : pageSize - 1);
             }
         } else if (pageQuery == 'rightMenu') {
             if (action == 'next') {
-                setPagesize2(pagesize2 + 1);
+                setPageSize2(pageSize2 + 1);
             } else if (action == 'prev') {
-                setPagesize2(pagesize2 - 1 == 0 ? 1 : pagesize2 - 1);
+                setPageSize2(pageSize2 - 1 == 0 ? 1 : pageSize2 - 1);
             }
         }
     }
@@ -123,10 +128,10 @@ const Store = () => {
         if (selectedOption.toLowerCase() != prevSelectedOptionRef.current.toLowerCase()) {
 
             if (selectedOption.toLowerCase() != prevSelectedOptionRef.current.toLowerCase()) {
-                setPagesize(1); // This will trigger a state update
+                setPageSize(1); // This will trigger a state update
 
             }
-            if (selectedOption.toLowerCase() != prevSelectedOptionRef.current.toLowerCase() && pagesize == 1) {
+            if (selectedOption.toLowerCase() != prevSelectedOptionRef.current.toLowerCase() && pageSize == 1) {
 
                 getGames('gameList');
             }
@@ -147,31 +152,33 @@ const Store = () => {
         if (searchValue.toLowerCase() == prevSearchValueRef.current.toLowerCase()) {
             getGames('nameSearch');
         }
-        prevPagesizeRef.current = pagesize;
-        prevPagesize2Ref.current = pagesize2;
+        prevPageSizeRef.current = pageSize;
+        prevPageSize2Ref.current = pageSize2;
         prevSelectedOptionRef.current = selectedOption;
         prevSearchValueRef.current = searchValue;
 
 
-    }, [pagesize, pagesize2]);
+    }, [pageSize, pageSize2]);
 
     useDebounce(() => setDebounceSearch(searchValue), 500, [searchValue])
     useEffect(() => {
         //setting the value for every search
         if (debounceSearch.toLowerCase() != prevSearchValueRef.current.toLowerCase()) {
             if (debounceSearch.toLowerCase() != prevSearchValueRef.current.toLowerCase()) {
-                setPagesize2(1); // This will trigger a state update
+                setPageSize2(1); // This will trigger a state update
 
             }
-            if (debounceSearch.toLowerCase() != prevSearchValueRef.current.toLowerCase() && pagesize2 == 1) {
+            if (debounceSearch.toLowerCase() != prevSearchValueRef.current.toLowerCase() && pageSize2 == 1) {
 
                 getGames('nameSearch');
+                if(debounceSearch != "" ){
+                    updateSearchValue(debounceSearch,'sam');
+                }
 
             }
         }
         prevSearchValueRef.current = debounceSearch;
 
-        updateCartValue();
 
     }, [debounceSearch]);
 
@@ -198,7 +205,7 @@ const Store = () => {
                         <div className="max-h-73 overflow-y-auto pr-1">
                             <div className="flex flex-col gap-2">
                                 <div className="flex flex-col gap-2">
-                                    {gamelist
+                                    {gameList
                                         .sort((a, b) => a.name.localeCompare(b.name))
                                         .map((data, index) => (
                                             <Link
@@ -232,9 +239,9 @@ const Store = () => {
                         {/* Navigation buttons */}
                         <div className="flex justify-between mt-2">
 
-                            {gamelist.length > 0 && (
+                            {gameList.length > 0 && (
                                 <>
-                                    {pagesize > 1 && (
+                                    {pageSize > 1 && (
                                         <button
                                             className="px-3 py-1 rounded bg-gray-700 text-white hover:bg-gray-600"
                                             onClick={() => handlePageSizeChange('prev', 'leftMenu')}
@@ -259,7 +266,7 @@ const Store = () => {
             <div
                 className="col-span-12 md:col-span-8 p-4 shadow-md bg-gray-900/25 order-2 md:order-2 flex flex-col">
                 {/*//add some context here*/}
-                <Outlet context={gameDetails}/>
+                <Outlet context={{gameDetails:gameDetails,emailCart:emailCart,setEmailCart:setEmailCart}} />
             </div>
 
             <div className="col-span-12 md:col-span-2 p-4 bg-gray-900/25 order-3 md:order-3">
@@ -272,7 +279,7 @@ const Store = () => {
                     handleSearch: handleSearch,
                     handleKeyDown: handleKeyDown,
                     handleSelectGame: handleSelectGame,
-                    pageSize2:pagesize2,
+                    pageSize2:pageSize2,
                     searchValue: searchValue
                 }}/>
 

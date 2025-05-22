@@ -32,6 +32,8 @@ function App() {
     const [mainBackGroundlist, setMainBackGroundlist] = useState([])
     const [backgroundIndex, setBackgroundIndex] = useState(0)
 
+    const [emailCart, setEmailCart] = useState('')
+
     const [pageCount, setPageCount] = useState(1)
     const [bgImage, setBgImage] = useState()
     const [navigation, setNavigation] = useState([
@@ -233,9 +235,9 @@ function App() {
                 <div className="z-0  w-full h-9/10 flex items-center justify-center relative">
                     <Outlet  context={
                         navigation === "store"
-                            ? { games: [games, setGames], pageCount: [pageCount, setPageCount] }
+                            ? { games: [games, setGames], pageCount: [pageCount, setPageCount],emailCart:{emailCart}, setEmailCart: {setEmailCart} }
                             : navigation === "cart"
-                                ? { cartCon: [cartCon, setCartCon] }
+                                ? { cartCon: [cartCon, setCartCon] ,emailCart:{emailCart}, setEmailCart: {setEmailCart}  }
                                 : { mainBackGroundlist }
                     }
                 />

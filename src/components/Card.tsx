@@ -1,24 +1,30 @@
-import { useOutletContext } from "react-router-dom";
+
 import {API_BASE_URL,API_KEY,API_OPTIONS} from '../App.tsx';
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import ToastModal from "./ToastModal.tsx";
-type GameDetails = {
-    id:number,
-    name: string,
-    description: string,
-    rating: number,
-};
-const useGameDetails = () => {
-    return useOutletContext<GameDetails>();
-};
-const Card = (  ) => {
+import {useOutletContext} from "react-router";
 
-    const gameDetails = useGameDetails();
 
+type Game = {
+    id: number;
+    name: string;
+    description: string;
+    rating: number;
+};
+
+type CardContextType = {
+    gameDetails: Game;
+    emailCart: string;
+    setEmailCart: React.Dispatch<React.SetStateAction<string>>;
+};
+
+const Card = () => {
+    const { gameDetails,emailCart, setEmailCart } = useOutletContext<CardContextType>();
     const [gameCardInfo, setGameCardInfo] = useState({});
 
-    const [showToast, setShowToast] = useState(false)
-    const [addCart, setAddCart] = useState(false)
+    const [showToast, setShowToast] = useState(false);
+    const [showToastEmail, setShowToastEmail] = useState(false);
+    const [undoAddCart, setUndoAddCart] = useState(true);
 
 
 
@@ -52,6 +58,7 @@ const Card = (  ) => {
     useEffect(() => {
 
         const timer = setInterval(() => {
+            console.log()
             setShowToast(false);
         }, 5200);
 
@@ -137,6 +144,7 @@ const Card = (  ) => {
             {showToast && (
                 <>
                     <ToastModal show={showToast} onClose={() => {setShowToast(false)}}/>
+
                 </>
                )}
         </>

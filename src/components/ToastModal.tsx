@@ -21,9 +21,7 @@ const ToastModal = ({show,onClose}:ToastModalProps) => {
     return (
        <>
            <div
-               className={`fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-xl bg-gray-900 text-white rounded-xl p-4 flex items-center justify-between shadow-lg transition-all duration-500 ease-in-out ${
-                       show ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6 pointer-events-none'
-               }`}
+               className={`fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-xl bg-gray-900 text-white rounded-xl p-4 flex items-center justify-between shadow-lg`}
            >
                <div>
                    <p className="text-sm text-gray-500 ">

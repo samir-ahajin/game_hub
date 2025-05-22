@@ -66,7 +66,7 @@ const Carousel2 = ({features}: CarouselProps) => {
              setGameData(data || {});
         }
         catch(err){
-            // @ts-ignore
+
             alert(err.message || 'Failed to fetch game from API');
         }
     }
