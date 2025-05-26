@@ -6,7 +6,7 @@ import {BrowserRouter,Routes,Route,Navigate} from "react-router-dom";
 import App from './App.tsx'
 import Home from "./components/Home.tsx";
 import Store from "./components/Store.tsx"
-import Cart from "./components/Cart"
+import Cart from "./components/Cart.tsx"
 import Default from "./components/Default.tsx"
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

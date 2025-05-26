@@ -3,12 +3,15 @@
 // import viteLogo from '/vite.svg'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
+
 import {Disclosure, DisclosureButton, DisclosurePanel} from '@headlessui/react'
 import {Bars3Icon, XMarkIcon} from '@heroicons/react/24/outline'
 import {Link, Outlet, useLocation} from "react-router";
 import {useEffect, useState, useMemo} from "react";
 import MatrixRain from "./components/MatrixRain.tsx";
-import {newUserId} from "./appwrite";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
+import {newUserId} from "./appwrite.js";
 
 
 export const API_BASE_URL = "https://api.rawg.io/api";
@@ -30,17 +33,15 @@ function classNames(...classes) {
 
 
 function App() {
-    const [games, setGames] = useState([])
-    const [errorDisplay, setErrorDisplay] = useState()
+    // const [errorDisplay, setErrorDisplay] = useState()
     const [mainBackGroundList, setMainBackGroundList] = useState([])
 
 
     const [emailCart, setEmailCart] = useState("")
-
-    const [backgroundIndex, setBackgroundIndex] = useState(0)
-    const [pageCount, setPageCount] = useState(1);
-    const [bgImage, setBgImage] = useState();
-    const [cartCon, setCartCon] = useState([]);
+    // const [backgroundIndex, setBackgroundIndex] = useState(0)
+    // const [pageCount, setPageCount] = useState(1);
+    // const [bgImage, setBgImage] = useState();
+    // const [cartCon, setCartCon] = useState([]);
 
 
     const location = useLocation();
@@ -99,7 +100,7 @@ function App() {
         const sunday = new Date(today);
         sunday.setDate(today.getDate() + sundayOffset);
 
-        const formatDate = (d) => d.toISOString().split('T')[0];
+        const formatDate = (d: Date) => d.toISOString().split('T')[0];
 
 
         try {
@@ -111,10 +112,10 @@ function App() {
             const data = await response.json();
 
             if (data.Response === 'False') {
-                setErrorDisplay(data.error || 'Failed to fetch game of the week from API');
+                alert(data.error || 'Failed to fetch game of the week from API');
                 setMainBackGroundList([])
             }
-            setMainBackGroundList(data.results.filter((datum) => datum.background_image != null) || [])
+            setMainBackGroundList(data.results.filter((datum:never) => datum.background_image != null) || [])
 
         } catch (error) {
             console.log(error.message);
