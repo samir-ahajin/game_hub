@@ -20,7 +20,6 @@ type CarouselProps = {
 const Carousel2 = ({features}: CarouselProps) => {
     const [index, setIndex] = useState(0);
     const [gameData, setGameData] = useState({});
-    const [translatedDesc, setTranslatedDesc] = useState("");
 
 
     // Autoplay every 10 seconds

@@ -1,6 +1,6 @@
 import Card from './Card';
 import {useOutletContext} from "react-router";
-import React from "react";
+
 
 type Game = {
     id:number,
@@ -11,15 +11,16 @@ type Game = {
 type GameDetailContextType = {
     gameDetails: Game;
     emailCart: string;
-    setEmailCart: React.Dispatch<React.SetStateAction<string>>;
+    handleEmail:(value:string)=>void;
 };
 const GameDetail = () => {
-    const {gameDetails,emailCart, setEmailCart } = useOutletContext<GameDetailContextType>();
+    const {gameDetails,emailCart,handleEmail} = useOutletContext<GameDetailContextType>();
+
 
 
     return (
         <div>
-        <Card gameDetails={gameDetails} emailCart={emailCart} setEmailCart={setEmailCart}></Card>
+        <Card cardComponents={{gameDetails,emailCart,handleEmail}}></Card>
         </div>
     );
 };

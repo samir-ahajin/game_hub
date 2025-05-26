@@ -1,19 +1,22 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import {Link, Outlet} from "react-router";
-import {useEffect, useState, useRef} from "react";
-import Loaders from "./Loaders.tsx";
+import React, {useEffect, useState, useRef} from "react";
+// import Loaders from "./Loaders.tsx";
 import Dropdown from "./Dropdown.tsx";
 import Searched from "./Searched.tsx";
 import {API_BASE_URL, API_KEY, API_OPTIONS} from '../App.tsx';
 import {useDebounce} from "react-use";
-import {updateCartValue, updateSearchValue} from "../appwrite.js";
-import { useOutletContext } from "react-router-dom";
+import {updateSearchValue} from "../appwrite.js";
+import { useOutletContext, useLocation, useNavigate  } from "react-router-dom";
 
-
+type StoreContextType = {
+    emailCart: string;
+    handleEmail:(value:string)=>void;
+};
 
 const Store = () => {
-    const {emailCart, setEmailCart } = useOutletContext();
+    const {emailCart,handleEmail} = useOutletContext<StoreContextType>();
 
     
     const [genres, setGenres] = useState([])
@@ -34,6 +37,10 @@ const Store = () => {
     const prevPageSize2Ref = useRef(pageSize2);
     const prevSelectedOptionRef = useRef(selectedOption);
     const prevSearchValueRef = useRef(searchValue);
+
+    const location = useLocation();
+    const navigate = useNavigate();
+
 
     //   FUNCTION //
     // api getting data
@@ -120,6 +127,14 @@ const Store = () => {
     //   USEFFECTS
     //getting the default genre list
     useEffect(() => {
+        const isReload = performance.getEntriesByType("navigation")[0]?.type === "reload";
+        const isGameDetail = /^\/game_hub\/store\/\d+$/.test(location.pathname);
+
+        if (isReload && isGameDetail) {
+            navigate("/game_hub/store", { replace: true });
+
+        }
+
         getGames('genre');
     }, []);
 
@@ -159,7 +174,6 @@ const Store = () => {
 
 
     }, [pageSize, pageSize2]);
-
     useDebounce(() => setDebounceSearch(searchValue), 500, [searchValue])
     useEffect(() => {
         //setting the value for every search
@@ -266,7 +280,7 @@ const Store = () => {
             <div
                 className="col-span-12 md:col-span-8 p-4 shadow-md bg-gray-900/25 order-2 md:order-2 flex flex-col">
                 {/*//add some context here*/}
-                <Outlet context={{gameDetails:gameDetails,emailCart:emailCart,setEmailCart:setEmailCart}} />
+                <Outlet context={{gameDetails,emailCart,handleEmail}} />
             </div>
 
             <div className="col-span-12 md:col-span-2 p-4 bg-gray-900/25 order-3 md:order-3">

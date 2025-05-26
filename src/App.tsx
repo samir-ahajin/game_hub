@@ -5,15 +5,18 @@
 // @ts-nocheck
 import {Disclosure, DisclosureButton, DisclosurePanel} from '@headlessui/react'
 import {Bars3Icon, XMarkIcon} from '@heroicons/react/24/outline'
-import {Link, Outlet} from "react-router";
-import {useEffect, useState} from "react";
+import {Link, Outlet, useLocation} from "react-router";
+import {useEffect, useState, useMemo} from "react";
 import MatrixRain from "./components/MatrixRain.tsx";
+import {newUserId} from "./appwrite";
 
 
 export const API_BASE_URL = "https://api.rawg.io/api";
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const API_KEY = import.meta.env.VITE_RAWG_API_KEY;
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const API_OPTIONS = {
     method: "GET",
     accept: 'application/json',
@@ -29,21 +32,19 @@ function classNames(...classes) {
 function App() {
     const [games, setGames] = useState([])
     const [errorDisplay, setErrorDisplay] = useState()
-    const [mainBackGroundlist, setMainBackGroundlist] = useState([])
+    const [mainBackGroundList, setMainBackGroundList] = useState([])
+
+
+    const [emailCart, setEmailCart] = useState("")
+
     const [backgroundIndex, setBackgroundIndex] = useState(0)
+    const [pageCount, setPageCount] = useState(1);
+    const [bgImage, setBgImage] = useState();
+    const [cartCon, setCartCon] = useState([]);
 
-    const [emailCart, setEmailCart] = useState('')
 
-    const [pageCount, setPageCount] = useState(1)
-    const [bgImage, setBgImage] = useState()
-    const [navigation, setNavigation] = useState([
-        {name: 'Home', href: '/', current: true},
-        {name: 'Store', href: 'store', current: false},
-        {name: 'Cart', href: 'cart', current: false},
-    ])
+    const location = useLocation();
 
-    const [cartCon, setCartCon] = useState([])
-    // @ts-ignore
     // const fetchGames = async (query = '') => {
     //     const today = new Date();
     //     const formatted = today.toISOString().split('T')[0];
@@ -75,7 +76,19 @@ function App() {
     //
     // }
 
-    const fecthGameoftheWeek = async (): Promise<void> => {
+
+    const navigation = useMemo(() => [
+        {name: 'Home', href: '/'},
+        {name: 'Store', href: '/store'},
+        {name: 'Cart', href: '/cart'}
+    ], []);
+
+    const updatedNavigation = navigation.map(item => ({
+        ...item,
+        current: location.pathname === item.href
+    }));
+
+    const fetchGameOfTheWeek = async (): Promise<void> => {
         const today = new Date();
         const dayOfWeek = today.getDay(); // 0 (Sunday) to 6 (Saturday)
         const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
@@ -99,54 +112,64 @@ function App() {
 
             if (data.Response === 'False') {
                 setErrorDisplay(data.error || 'Failed to fetch game of the week from API');
-                setMainBackGroundlist([])
+                setMainBackGroundList([])
             }
-            setMainBackGroundlist(data.results.filter((datum) => datum.background_image != null) || [])
+            setMainBackGroundList(data.results.filter((datum) => datum.background_image != null) || [])
 
         } catch (error) {
             console.log(error.message);
         }
     }
 
+    const handleEmail = (email: string) => {
+
+        setEmailCart(email);
+    }
 
     //Setting the background image
     useEffect(() => {
 
-        fecthGameoftheWeek();
+        fetchGameOfTheWeek();
     }, [])
 
+
+    useEffect(() => {
+        newUserId(emailCart);
+    }, [emailCart]);
+
     // useEffect(() => {
-    //     if (mainBackGroundlist.length === 0) return;
+    //     if (mainBackGroundList.length === 0) return;
     //
     //     // Set the background image every 10 seconds
     //     const interval = setInterval(() => {
-    //         setBackgroundIndex((prevIndex) => (prevIndex + 1) % mainBackGroundlist.length);
+    //         setBackgroundIndex((prevIndex) => (prevIndex + 1) % mainBackGroundList.length);
     //     }, 10000); // 10 seconds
     //
     //     return () => clearInterval(interval); // Cleanup on unmount
-    // }, [mainBackGroundlist]);
+    // }, [mainBackGroundList]);
     //
     // useEffect(() => {
     //
-    //         if (mainBackGroundlist.length > 0) {
-    //             const currentGame = mainBackGroundlist[backgroundIndex];
+    //         if (mainBackGroundList.length > 0) {
+    //             const currentGame = mainBackGroundList[backgroundIndex];
     //             // @ts-ignore
     //             setBgImage(currentGame.background_image);
     //
     //         }
     //     }
     //     ,
-    //     [mainBackGroundlist, backgroundIndex]
+    //     [mainBackGroundList, backgroundIndex]
     // )
     // ;
 
     return (
         <>
-            <MatrixRain     />
+            <MatrixRain/>
 
 
-            <div className="w-full h-screen p-8 md:p-12  bg-cover bg-center transition-all duration-500 ease-in-out relative z-0 text-white"
-                 >
+            <div
+                className="w-full h-screen p-8 md:p-12  bg-cover bg-center transition-all duration-500 ease-in-out relative z-0 text-white"
+            >
 
                 <div className="mb-8 md:mb-5 h-[80px] p-4  z-40 bg-black  ">
                     <Disclosure>
@@ -171,28 +194,36 @@ function App() {
                                         />
                                     </div>
                                     <div className="basis-2/3 hidden sm:ml-6 sm:block justify-items-end">
-                                        <div className="flex space-x-4">
-                                            {navigation.map((item) => (
-                                                <Link
+                                        <div className="flex space-x-4 indicator">
+                                            {updatedNavigation.map((item) => (
+                                                <div
                                                     key={item.name}
-                                                    to={item.href}
-                                                    aria-current={item.current ? 'page' : undefined}
-                                                    className={classNames(
-                                                        item.current ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white',
-                                                        'rounded-md px-3 py-2 text-sm font-medium',
-                                                    )}
-                                                    onClick={() => {
-                                                        setNavigation((prev) =>
-                                                            prev.map((n) => ({
-                                                                ...n,
-                                                                current: n.name === item.name,
-                                                            }))
-                                                        );
-
-                                                    }}
+                                                    className={item.name === 'Cart' ? 'indicator relative flex items-center' : 'flex items-center'}
                                                 >
-                                                    {item.name}
-                                                </Link>
+                                                    {item.name === 'Cart' && (
+                                                        <span className="indicator-item badge badge-secondary badge-xs top-0 right-0">{emailCart?1:0}</span>
+                                                    )}
+                                                    <Link
+                                                        to={item.href}
+                                                        aria-current={item.current ? 'page' : undefined}
+                                                        className={classNames(
+                                                            item.current
+                                                                ? 'bg-gray-900 text-white'
+                                                                : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+                                                            'rounded-md px-3 py-2 text-sm font-medium'
+                                                        )}
+                                                        onClick={() => {
+                                                            setNavigation((prev) =>
+                                                                prev.map((n) => ({
+                                                                    ...n,
+                                                                    current: n.name === item.name,
+                                                                }))
+                                                            );
+                                                        }}
+                                                    >
+                                                        {item.name}
+                                                    </Link>
+                                                </div>
                                             ))}
                                         </div>
                                     </div>
@@ -203,44 +234,52 @@ function App() {
 
 
                         <DisclosurePanel className="sm:hidden bg-gray-900/25 z-50 relative">
-                            <div className="space-y-1 px-2 pt-2 pb-3 ">
-                                {navigation.map((item) => (
-                                    <Link
+                            <div className="space-y-1 px-2 pt-2 pb-3">
+                                {updatedNavigation.map((item) => (
+                                    <div
                                         key={item.name}
-                                        to={item.href}
-                                        aria-current={item.current ? 'page' : undefined}
-                                        className={classNames(
-                                            item.current ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white',
-                                            'block rounded-md px-3 py-2 text-base font-medium ',
-                                        )}
-                                        onClick={() => {
-                                            setNavigation((prev) =>
-                                                prev.map((n) => ({
-                                                    ...n,
-                                                    current: n.name === item.name,
-                                                }))
-                                            );
-
-                                        }}
+                                        className={
+                                            item.name === 'Cart'
+                                                ? 'relative indicator flex items-start  w-full'
+                                                : 'flex items-center  w-full'
+                                        }
                                     >
-                                        {item.name}
-                                    </Link>
+
+                                        <Link
+                                            to={item.href}
+                                            aria-current={item.current ? 'page' : undefined}
+                                            className={classNames(
+                                                item.current
+                                                    ? 'bg-gray-900 text-white'
+                                                    : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+                                                'block rounded-md px-3 py-2 text-base font-medium w-full'
+                                            )}
+                                            onClick={() => {
+                                                setNavigation((prev) =>
+                                                    prev.map((n) => ({
+                                                        ...n,
+                                                        current: n.name === item.name,
+                                                    }))
+                                                );
+                                            }}
+                                        >
+                                            {item.name}
+                                        </Link>
+                                        {item.name === 'Cart' && (
+                                            <span className="indicator-item badge badge-secondary badge-xs top-1 right-1">{emailCart?1:0}</span>
+                                        )}
+                                    </div>
                                 ))}
                             </div>
                         </DisclosurePanel>
+
                     </Disclosure>
 
                 </div>
 
                 <div className="z-0  w-full h-9/10 flex items-center justify-center relative">
-                    <Outlet  context={
-                        navigation === "store"
-                            ? { games: [games, setGames], pageCount: [pageCount, setPageCount],emailCart:{emailCart}, setEmailCart: {setEmailCart} }
-                            : navigation === "cart"
-                                ? { cartCon: [cartCon, setCartCon] ,emailCart:{emailCart}, setEmailCart: {setEmailCart}  }
-                                : { mainBackGroundlist }
-                    }
-                />
+                    <Outlet context={{emailCart, handleEmail, mainBackGroundList}}
+                    />
                 </div>
 
             </div>
