@@ -204,7 +204,7 @@ const Store = () => {
     return (
         <div className=" w-full h-10/10 grid grid-cols-12 gap-4">
             {/* Left Column (Col Span 2) */}
-            <div className="col-span-12 md:col-span-2 p-4 bg-gray-900/25 order-1 md:order-1">
+            <div className="col-span-12 md:col-span-2 p-4 bg-gray-900/70 order-1 md:order-1">
                 <h1>CATEGORIES</h1>
                 <Dropdown genres={genres}
                           optionSettings={{
@@ -278,12 +278,12 @@ const Store = () => {
 
             {/* Main Content (Col Span 8) */}
             <div
-                className="col-span-12 md:col-span-8 p-4 shadow-md bg-gray-900/25 order-2 md:order-2 flex flex-col">
+                className="col-span-12 md:col-span-8 p-4 shadow-md bg-gray-900/70 order-2 md:order-2 flex flex-col">
                 {/*//add some context here*/}
                 <Outlet context={{gameDetails,emailCart,handleEmail}} />
             </div>
 
-            <div className="col-span-12 md:col-span-2 p-4 bg-gray-900/25 order-3 md:order-3">
+            <div className="col-span-12 md:col-span-2 p-4 bg-gray-900/70     order-3 md:order-3">
 
 
                 <Searched searchSettings={{

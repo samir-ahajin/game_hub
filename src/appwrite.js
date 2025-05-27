@@ -16,22 +16,20 @@ const client = new Client()
 const database = new Databases(client);
 
 export const updateCartValue = async (data) => {
-    const isEmpty = Object.keys(data).length === 0;
+    try{
+        const isEmpty = Object.keys(data).length === 0;
 
-    if (!isEmpty) {
-        console.log("shoor");
-        console.log(data.gameId);
-        if (data.gameId) {
-            console.log("shoor2");
-            console.log(USERCART_ID);
-            const userData =
-                await database.listDocuments(DATABASE_ID, USERCART_ID, [
-                Query.equal('game_id', data.gameId)
-            ])
-            console.log("shoor3");
-            await newUserId(data.user);
+        if (!isEmpty) {
+            if (data.gameId) {
+                const userData =
+                    await database.listDocuments(DATABASE_ID, USERCART_ID, [
+                        Query.equal('game_id', data.gameId),
+                        Query.equal('user', data.user)
+                    ])
 
-            if (userData.documents.length === 0) {
+                await newUserId(data.user);
+
+                if (userData.documents.length === 0) {
 
                     await database.createDocument(DATABASE_ID, USERCART_ID, ID.unique(), {
                         user: data.user,
@@ -44,9 +42,15 @@ export const updateCartValue = async (data) => {
                         added_date: new Date(),
                     })
 
+                }
             }
         }
+
     }
+    catch (e) {
+        console.error(e);
+    }
+
 }
 
 
@@ -121,8 +125,27 @@ export const newUserId = async (user) => {
     }
 }
 
-export const validateGame = async (game_id) => {
+export const validateGame = async (user,id) => {
 
-
+    const userData =
+        await database.listDocuments(DATABASE_ID, USERCART_ID, [
+            Query.equal('user', user)
+        ])
 
 }
+
+export const getUserGameList = async (user) => {
+
+    try{
+        const userData = await database.listDocuments(DATABASE_ID,USERCART_ID, [
+            Query.equal('user', user),
+        ])
+
+         console.log(userData)
+        return userData;
+    }
+    catch (err){
+        console.log(err);
+    }
+}
+

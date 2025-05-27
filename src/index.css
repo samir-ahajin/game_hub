@@ -26,3 +26,15 @@
     background: #555;
 }
 
+.perspective {
+    perspective: 1000px;
+}
+
+.custom-rotate-y {
+    transform: rotateY(25deg);
+    transition: transform 0.3s ease;
+}
+
+.custom-rotate-y:hover {
+    transform: rotateY(0deg);
+}

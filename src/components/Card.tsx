@@ -48,6 +48,7 @@ type cardVal = {
     const [addCart, setAddCart] = useState(true);
     const [addCartValue, setAddCartValue] = useState({});
     const [gameUrl, setGameUrl] = useState("");
+    const [addGame, setAddGame] = useState(false);
 
     const { id } = useParams();
     const [reloadId, setReloadId] = useState(0);
@@ -63,7 +64,7 @@ type cardVal = {
                 return response.json();
             })
             .then((data) => {
-                console.log(data)
+                // console.log(data)
 
                 setGameCardInfo(data || {
                     name: "",
@@ -136,6 +137,7 @@ type cardVal = {
         } else {
                 setShowToast(true);
         }
+        setAddGame(false);
 
     }
 
@@ -167,11 +169,12 @@ type cardVal = {
     }, [showToast]);
 
     useEffect(() => {
-        handleToast();
-    }, [emailCart]);
+        if(addGame){
+            handleToast();
+        }
+    }, [addGame]);
 
     useEffect(() => {
-        console.log(addCart)
         if(addCart){
             updateCartValue(addCartValue);
             setAddCart(false);
@@ -195,10 +198,10 @@ type cardVal = {
                 className="w-full max-w-lvw bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
                 <a>
                     <img className="w-full  h-80 object-contain object-top p-8 rounded-t-lg"
-                         src={gameCardInfo?.background_image || ""} alt={gameCardInfo?.name || ""}/>
+                         src={gameCardInfo?.background_image || ""} alt={gameCardInfo?.name || "No Name"}/>
                 </a>
                 <div className="px-5 pb-5">
-                    <a href="#">
+                    <a >
                         <h5 className="text-xl font-semibold tracking-tight text-gray-900 dark:text-white">
                             {gameCardInfo?.name || ""}</h5>
                     </a>
@@ -215,7 +218,7 @@ type cardVal = {
                     <div className="flex items-center justify-between">
                         <span className="text-3xl font-bold text-gray-900 dark:text-white">$599</span>
                         <a onClick={() => {
-                            handleToast()
+                            setAddGame(true);
                         }}
                            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300
                            font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700

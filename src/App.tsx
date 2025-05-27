@@ -172,7 +172,7 @@ function App() {
                 className="w-full h-screen p-8 md:p-12  bg-cover bg-center transition-all duration-500 ease-in-out relative z-0 text-white"
             >
 
-                <div className="mb-8 md:mb-5 h-[80px] p-4  z-40 bg-black  ">
+                <div className="mb-8 md:mb-5 h-[80px] p-4  z-40 bg-gray-900/80">
                     <Disclosure>
                         <div className="mx-auto w-full px-2 sm:px-6 lg:px-8">
                             <div className="relative flex h-16 items-center justify-end">
@@ -188,11 +188,7 @@ function App() {
                                 </div>
                                 <div className="flex row w-full sm:items-stretch sm:justify-end">
                                     <div className="basis-1/3 shrink-0 items-center  sm:justify-self-center">
-                                        <img
-                                            alt="Your Company"
-                                            src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500"
-                                            className="h-8 w-auto"
-                                        />
+                                        <span className="font-mono font-extrabold text-1xl sm:text-4xl">G-HUB</span>
                                     </div>
                                     <div className="basis-2/3 hidden sm:ml-6 sm:block justify-items-end">
                                         <div className="flex space-x-4 indicator">
@@ -209,7 +205,7 @@ function App() {
                                                         aria-current={item.current ? 'page' : undefined}
                                                         className={classNames(
                                                             item.current
-                                                                ? 'bg-gray-900 text-white'
+                                                                ? 'bg-gray-700 text-white'
                                                                 : 'text-gray-300 hover:bg-gray-700 hover:text-white',
                                                             'rounded-md px-3 py-2 text-sm font-medium'
                                                         )}
@@ -278,7 +274,7 @@ function App() {
 
                 </div>
 
-                <div className="z-0  w-full h-9/10 flex items-center justify-center relative">
+                <div className="z-0  h-9/10 flex items-center justify-center relative">
                     <Outlet context={{emailCart, handleEmail, mainBackGroundList}}
                     />
                 </div>
