@@ -1,5 +1,4 @@
 import {Client, Databases, Query, ID} from "appwrite";
-import {components as gameCardInfo} from "daisyui/imports.js";
 
 
 const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
@@ -15,7 +14,7 @@ const client = new Client()
 
 const database = new Databases(client);
 
-export const updateCartValue = async (data) => {
+export const updateCartValue = async (data:any) => {
     try{
         const isEmpty = Object.keys(data).length === 0;
 
@@ -54,7 +53,7 @@ export const updateCartValue = async (data) => {
 }
 
 
-export const updateSearchValue = async (searchValue, user) => {
+export const updateSearchValue = async (searchValue:string, user:string) => {
 
     try {
         const result2 = await database.listDocuments(DATABASE_ID, USERSEARCHV_ID, [
@@ -70,7 +69,7 @@ export const updateSearchValue = async (searchValue, user) => {
 
         if (result.documents.length > 0) {
             const doc = result.documents[0];
-
+            console.log(doc)
 
         } else {
             if (result2.documents.length > 10) {
@@ -100,13 +99,15 @@ export const updateSearchValue = async (searchValue, user) => {
 
 }
 
-export const newUserId = async (user) => {
+export const newUserId = async (user:string) => {
     if (user !== null || user !== "") {
         try {
             const userData = await database.listDocuments(DATABASE_ID, USERS_ID, [
                 Query.equal('users', user),
             ])
 
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
             if (!userData.documents.length > 0) {
                 const lastUserCount = await database.listDocuments(DATABASE_ID, USERS_ID, [
                     Query.orderDesc('count'),
@@ -125,7 +126,7 @@ export const newUserId = async (user) => {
     }
 }
 
-export const validateGame = async (user,id) => {
+export const validateGame = async (user:string,) => {
 
     const userData =
         await database.listDocuments(DATABASE_ID, USERCART_ID, [
@@ -134,7 +135,7 @@ export const validateGame = async (user,id) => {
 
 }
 
-export const getUserGameList = async (user) => {
+export const getUserGameList = async (user:string) => {
 
     try{
         const userData = await database.listDocuments(DATABASE_ID,USERCART_ID, [
@@ -149,3 +150,27 @@ export const getUserGameList = async (user) => {
     }
 }
 
+export const removeId = async (user:string,id:string) => {
+
+    try{
+        const userData = await database.listDocuments(DATABASE_ID,USERCART_ID, [
+            Query.equal('user', user),
+            Query.equal('$id', id),
+        ])
+
+        if(userData.documents.length > 0) {
+            const document_id = userData.documents[0]['$id'];
+            console.log(document_id);
+
+            await database.deleteDocument(
+                DATABASE_ID,USERCART_ID,document_id
+            )
+        }
+
+         console.log(userData)
+
+    }
+    catch(err){
+        console.log(err);
+    }
+}

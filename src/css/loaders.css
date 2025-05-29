@@ -1,8 +1,16 @@
+.spinner-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 150px; /* Adjust height based on use */
+    padding: 1rem;
+}
+
 .spinner {
-    width: 70.4px;
-    height: 70.4px;
-    --clr: lime;
-    --clr-alpha: transparrent;
+    width: 40px; /* Smaller */
+    height: 40px;
+    --clr: oklch(76% 0.177 163.223);
+    --clr-alpha: transparent;
     animation: spinner 1.6s infinite ease;
     transform-style: preserve-3d;
 }
@@ -16,7 +24,7 @@
 }
 
 .spinner div:nth-of-type(1) {
-    transform: translateZ(-35.2px) rotateY(180deg);
+    transform: translateZ(-20px) rotateY(180deg);
 }
 
 .spinner div:nth-of-type(2) {
@@ -40,7 +48,7 @@
 }
 
 .spinner div:nth-of-type(6) {
-    transform: translateZ(35.2px);
+    transform: translateZ(20px);
 }
 
 @keyframes spinner {

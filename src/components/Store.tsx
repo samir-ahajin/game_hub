@@ -7,8 +7,9 @@ import Dropdown from "./Dropdown.tsx";
 import Searched from "./Searched.tsx";
 import {API_BASE_URL, API_KEY, API_OPTIONS} from '../App.tsx';
 import {useDebounce} from "react-use";
-import {updateSearchValue} from "../appwrite.js";
+import {updateSearchValue} from "../appwrite.ts";
 import { useOutletContext, useLocation, useNavigate  } from "react-router-dom";
+import Loaders2 from "./Loaders2.tsx";
 
 type StoreContextType = {
     emailCart: string;
@@ -26,6 +27,9 @@ const Store = () => {
     const [pageSize2, setPageSize2] = useState(1)
     const [searchValue, setSearchValue] = useState("")
     const [searchedGame, setSearchedGame] = useState([]);
+
+    const [loaders, setLoaders] = useState(false);
+    const [loadingSearch, setLoadingSearch] = useState(false);
 
 
     const [gameDetails, setGameDetails] = useState({});
@@ -45,13 +49,20 @@ const Store = () => {
     //   FUNCTION //
     // api getting data
     const getGames = async (type) => {
+        if (['genre', 'gameList'].includes(type)) {
 
+            setLoaders(true);
+        }
+        else if (['nameSearch'].includes(type)) {
+            setLoadingSearch(true)
+        }
         try {
+            console.log(type)
             const endpoint = type == 'genre' ? `${API_BASE_URL}/genres?key=${API_KEY}`
                 : type == 'gameList' && selectedOption != 'All' ? `${API_BASE_URL}/games?genres=${selectedOption.toLowerCase()}&key=${API_KEY}&page=${pageSize}`
                     : type == 'nameSearch' ? `${API_BASE_URL}/games?search=${encodeURIComponent(searchValue)}&key=${API_KEY}&page=${pageSize2}`
                         : `${API_BASE_URL}/games?key=${API_KEY}&page=${pageSize}`;
-
+    console.log(endpoint)
             const response = await fetch(endpoint, API_OPTIONS);
 
 
@@ -66,6 +77,7 @@ const Store = () => {
                     setGenres(data.results || [])
                     break;
                 case 'gameList':
+                case 'all':
                     setGameList(data.results || [])
 
                     break;
@@ -81,6 +93,14 @@ const Store = () => {
             if (err) {
                 console.warn("API key not defined. Skipping fetch.");
                 return;
+            }
+        } finally {
+            if (['genre', 'gameList'].includes(type)){
+                console.log('test2');
+                setLoaders(false);
+            }
+            else if (['nameSearch'].includes(type)) {
+                setLoadingSearch(false)
             }
         }
     }
@@ -136,6 +156,7 @@ const Store = () => {
         }
 
         getGames('genre');
+        getGames('all');
     }, []);
 
     useEffect(() => {
@@ -160,11 +181,12 @@ const Store = () => {
 
     // useEffect for page
     useEffect(() => {
-
-        if (selectedOption.toLowerCase() == prevSelectedOptionRef.current.toLowerCase()) {
+        if (selectedOption.toLowerCase() == prevSelectedOptionRef.current.toLowerCase()
+        && pageSize != prevPageSizeRef.current) {
             getGames('gameList');
         }
-        if (searchValue.toLowerCase() == prevSearchValueRef.current.toLowerCase()) {
+        if (searchValue.toLowerCase() == prevSearchValueRef.current.toLowerCase()
+            && pageSize2 != prevPageSize2Ref.current) {
             getGames('nameSearch');
         }
         prevPageSizeRef.current = pageSize;
@@ -197,29 +219,34 @@ const Store = () => {
     }, [debounceSearch]);
 
 
-    // useEffect(() => {
-    //
-    // }, [gameData]);
-
     return (
         <div className=" w-full h-10/10 grid grid-cols-12 gap-4">
             {/* Left Column (Col Span 2) */}
             <div className="col-span-12 md:col-span-2 p-4 bg-gray-900/70 order-1 md:order-1">
-                <h1>CATEGORIES</h1>
-                <Dropdown genres={genres}
-                          optionSettings={{
-                              selectedOption: selectedOption,
-                              setSelectedOption: setSelectedOption
-                          }}
+                <div className="flex flex-wrap items-center gap-2">
+                    <div className="mb-2 sm:mb-0">
+                        <h1 className="text-xl font-semibold">GENRE</h1>
+                    </div>
 
-                />
+                    <div className="mb-2 sm:mb-0">
+                        <Dropdown
+                            genres={genres}
+                            optionSettings={{
+                                selectedOption: selectedOption,
+                                setSelectedOption: setSelectedOption,
+                            }}
+
+                        />
+                    </div>
+                </div>
                 <div>
                     <div className="flex flex-col gap-4 p-1.5 relative">
                         {/* Scrollable list container */}
                         <div className="max-h-73 overflow-y-auto pr-1">
                             <div className="flex flex-col gap-2">
                                 <div className="flex flex-col gap-2">
-                                    {gameList
+                                    {loaders?(
+                                       <Loaders2 />) : gameList
                                         .sort((a, b) => a.name.localeCompare(b.name))
                                         .map((data, index) => (
                                             <Link
@@ -255,20 +282,32 @@ const Store = () => {
 
                             {gameList.length > 0 && (
                                 <>
-                                    {pageSize > 1 && (
-                                        <button
-                                            className="px-3 py-1 rounded bg-gray-700 text-white hover:bg-gray-600"
-                                            onClick={() => handlePageSizeChange('prev', 'leftMenu')}
-                                        >
-                                            Prev
-                                        </button>
-                                    )}
-                                    <button
-                                        className="px-3 py-1 rounded bg-gray-700 text-white hover:bg-gray-600"
-                                        onClick={() => handlePageSizeChange('next', 'leftMenu')}
-                                    >
-                                        Next
-                                    </button>
+                                    <div className="w-full flex flex-wrap items-center place-content-center gap-2">
+
+
+                                        {pageSize > 1 && (
+                                            <div className="mb-2 sm:mb-0 place-items-center">
+                                            <button
+                                                className="px-3 py-1 rounded bg-gray-700 text-white hover:bg-gray-600"
+                                                onClick={() => handlePageSizeChange('prev', 'leftMenu')}
+                                            >
+                                                Prev
+                                            </button>
+                                            </div>
+                                        )}
+
+
+                                        <div className="mb-2 sm:mb-0 place-items-center">
+                                            <button
+                                                className="px-3 py-1 rounded bg-gray-700 text-white hover:bg-gray-600"
+                                                onClick={() => handlePageSizeChange('next', 'leftMenu')}
+                                            >
+                                                Next
+                                            </button>
+                                        </div>
+                                    </div>
+
+
                                 </>
                             )}
                         </div>
@@ -294,7 +333,8 @@ const Store = () => {
                     handleKeyDown: handleKeyDown,
                     handleSelectGame: handleSelectGame,
                     pageSize2:pageSize2,
-                    searchValue: searchValue
+                    searchValue: searchValue,
+                    loadingSearch:loadingSearch
                 }}/>
 
 

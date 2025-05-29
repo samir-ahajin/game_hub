@@ -76,6 +76,8 @@ const Carousel2 = ({features}: CarouselProps) => {
 
     return (
         <div className="w-full max-w-6xl mx-auto p-4">
+
+
             <div className="flex flex-col md:flex-row gap-4">
                 {/* Left: Image */}
                 {current?.background_image && (
@@ -133,7 +135,7 @@ const Carousel2 = ({features}: CarouselProps) => {
                         </button>
 
                         {/* Text Content */}
-                        <div className="p-4 text-white flex-grow flex flex-col justify-between ">
+                        <div className="p-4 text-white flex-grow flex flex-col justify-between overflow-y-auto ">
                             <div>
                                 <div className="flex justify-between items-center">
                                     <h2 className="text-xl font-bold">{current.name || "No Name"}</h2>
@@ -142,7 +144,7 @@ const Carousel2 = ({features}: CarouselProps) => {
                                 {gameData && (
                                     <p
                                         dangerouslySetInnerHTML={{ __html: gameData.description }}
-                                        className="text-gray-400 mt-2 overflow-y-auto max-h-48 pr-2"
+                                        className="text-gray-400 mt-2  max-h-48 pr-2"
                                     />
                                 )}
                             </div>

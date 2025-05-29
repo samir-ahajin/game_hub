@@ -2,16 +2,14 @@
 import {useState, useEffect} from "react";
 import {useOutletContext} from "react-router-dom";
 import ToastModalEmail from "./ToastModalEmail.tsx";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
-import {getUserGameList} from "../appwrite.js";
-
+import {getUserGameList, removeId} from "../appwrite.ts";
+import Loaders from "./Loaders.tsx";
 type CartContextType = {
     emailCart: string;
     handleEmail: (value: string) => void;
 };
 type userDataType = {
-    documents: any[],
+    documents: never[],
     total: number
 }
 
@@ -23,25 +21,49 @@ const Store = () => {
         documents: [],
         total: 0
     });
+    const [loading, setLoading] = useState(false);
+
 
     const handleToast = () => {
 
         setShowToastEmail(true);
     }
 
-    const handleRemoveGame = (id: number) => {
-        console.log(id);
+    const handleRemoveGame = async (id: string) => {
+        setLoading(true);
+        try{
+            await removeId(emailCart,id);
+            await getUserGameList(emailCart) .then((data) => {
+
+                setDataList(data);
+                handleEmail(emailCart);
+                 })
+                .catch((err: string) => {
+                    console.error(err);
+                })
+                .finally(()=>{
+                    setLoading(false);
+                })
+
+        }catch(e){
+            console.error(e);
+        }
+
     }
 
     useEffect(() => {
         if (emailCart) {
+            setLoading(true);
             getUserGameList(emailCart)
-                .then((data: never) => {
+                .then((data) => {
                     setDataList(data);
                 })
                 .catch((err: string) => {
                     console.error(err);
-                });
+                })
+                .finally(()=>{
+                    setLoading(false);
+             })
 
         }
     }, [emailCart])
@@ -52,12 +74,17 @@ const Store = () => {
         //     <Link to="/store    ">Click here to go back</Link>
         // </div>
         <>
-            <div className="w-full h-10/10 bg-gray-900/25">
-                <div className="p-2">
+            <div className="w-full h-10/10 bg-gray-900/70">
+                <div className="p-3">
                 <h3 className="font-bold"> Total games Added <span className="text-yellow-400">{dataList?.total || 0}</span></h3>
+
+
                 </div>
-                <div className="h-9/10 p-2 overflow-y-auto">
-                       {emailCart ? (dataList.documents.map((item: any, index: number) => {
+                <div className="h-9/10 p-2 overflow-y-auto ontent-center">
+                           {loading? (
+                               <div className="h-full flex items-center justify-center">
+                                   <Loaders />
+                               </div>) : emailCart ? (dataList.documents.map((item: any, index: number) => {
                             return (
 
                                 <div

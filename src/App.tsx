@@ -11,7 +11,7 @@ import {useEffect, useState, useMemo} from "react";
 import MatrixRain from "./components/MatrixRain.tsx";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
-import {newUserId} from "./appwrite.js";
+import {newUserId} from "./appwrite.ts";
 
 
 export const API_BASE_URL = "https://api.rawg.io/api";
@@ -77,12 +77,20 @@ function App() {
     //
     // }
 
+    const [navigation, setNavigation] = useState([
+        { name: 'Home', href: '/', current: true },
+        { name: 'Store', href: '/store', current: false },
+        { name: 'Cart', href: '/cart', current: false },
+    ]);
+    // const navigation = useMemo(() => [
+    //     {name: 'Home', href: '/'},
+    //     {name: 'Store', href: '/store'},
+    //     {name: 'Cart', href: '/cart'}
+    // ], []);
 
-    const navigation = useMemo(() => [
-        {name: 'Home', href: '/'},
-        {name: 'Store', href: '/store'},
-        {name: 'Cart', href: '/cart'}
-    ], []);
+    // const currentTab = useMemo(() => {
+    //     return navigation.find((n) => n.current);
+    // }, [navigation]);
 
     const updatedNavigation = navigation.map(item => ({
         ...item,
@@ -274,7 +282,7 @@ function App() {
 
                 </div>
 
-                <div className="z-0  h-9/10 flex items-center justify-center relative">
+                <div className="z-0  h-9/10 flex items-center justify-center relative ">
                     <Outlet context={{emailCart, handleEmail, mainBackGroundList}}
                     />
                 </div>

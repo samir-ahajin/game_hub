@@ -1,4 +1,5 @@
 import {Link} from "react-router";
+import Loaders2 from "./Loaders2.tsx";
 
 type searchVal = {
     searchSettings: {
@@ -10,6 +11,7 @@ type searchVal = {
         handleSelectGame: (value: string, value1: string) => void,
         searchValue: string,
         pageSize2: number,
+        loadingSearch:boolean
     };
 };
 
@@ -18,6 +20,7 @@ const Searched = ({searchSettings}: searchVal) => {
     const {
         searchedGame,
         searchValue,
+        loadingSearch,
         pageSize2,
         handlePageSizeChange,
         handleSearch,
@@ -67,7 +70,7 @@ const Searched = ({searchSettings}: searchVal) => {
                 <div className="max-h-80 overflow-y-auto pr-1">
                     <div className="flex flex-col gap-2">
                         <div className="flex flex-col gap-2">
-                            {searchValue == "" ? (<div>No Search Yet</div>) : (
+                            {loadingSearch?(<Loaders2 />) : searchValue == "" ? (<div>No Search Yet</div>) : (
                                 searchedGame
                                     .map((value: any, index: number) => {
                                         return (

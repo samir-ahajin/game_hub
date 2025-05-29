@@ -4,7 +4,7 @@ import ToastModal from "./ToastModal.tsx";
 import ToastModalEmail from "./ToastModalEmail.tsx";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
-import {updateCartValue} from "../appwrite.js";
+import {updateCartValue} from "../appwrite.ts";
 import {useParams} from "react-router";
 
 
