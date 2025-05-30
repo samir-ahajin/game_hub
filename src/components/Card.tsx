@@ -1,11 +1,13 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import {API_BASE_URL, API_KEY, API_OPTIONS} from '../App.tsx';
 import {useState, useEffect} from "react";
 import ToastModal from "./ToastModal.tsx";
 import ToastModalEmail from "./ToastModalEmail.tsx";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
 import {updateCartValue} from "../appwrite.ts";
 import {useParams} from "react-router";
+import Loaders from "./Loaders.tsx";
+import Gamepreview from "./Gamepreview.tsx";
 
 
 type Game = {
@@ -29,8 +31,7 @@ type cardVal = {
 }
 
 
-
-    const Card = ({cardComponents}: cardVal) => {
+const Card = ({cardComponents}: cardVal) => {
     const {
         gameDetails,
         emailCart,
@@ -43,18 +44,21 @@ type cardVal = {
         rating: 0,
     });
 
+
     const [showToast, setShowToast] = useState(false);
     const [showToastEmail, setShowToastEmail] = useState(false);
     const [addCart, setAddCart] = useState(true);
     const [addCartValue, setAddCartValue] = useState({});
     const [gameUrl, setGameUrl] = useState("");
     const [addGame, setAddGame] = useState(false);
+    const [cardLoading, setCardLoading] = useState(false);
+    const [platForms, setPlatForms] = useState([]);
 
-    const { id } = useParams();
+    const {id} = useParams();
     const [reloadId, setReloadId] = useState(0);
     const fetchGameData = (game?: number) => {
         const endpoint = `${API_BASE_URL}/games/${game}?key=${API_KEY}`;
-
+        setCardLoading(true);
 
         fetch(endpoint, API_OPTIONS)
             .then((response) => {
@@ -64,8 +68,6 @@ type cardVal = {
                 return response.json();
             })
             .then((data) => {
-                // console.log(data)
-
                 setGameCardInfo(data || {
                     name: "",
                     background_image: "",
@@ -73,11 +75,19 @@ type cardVal = {
                     rating: 0,
                 });
 
+                setPlatForms(data.parent_platforms || [{
+                    id: data.id,
+                    nam: "n/a",
+                    slug: "n/a"
+                }]);
+
+
                 setGameUrl(endpoint);
             })
             .catch((err) => {
                 alert(err.message || "Failed to fetch game from API");
-            });
+            })
+            .finally(() => setCardLoading(false));
     };
     //setting the star color
     const renderStarRating = (rating: number) => {
@@ -133,16 +143,16 @@ type cardVal = {
     const handleToast = () => {
 
         if (emailCart == "" || emailCart == undefined) {
-               setShowToastEmail(true);
+            setShowToastEmail(true);
         } else {
-                setShowToast(true);
+            setShowToast(true);
         }
         setAddGame(false);
 
     }
 
     useEffect(() => {
-        if(gameDetails.id) {
+        if (gameDetails.id) {
             fetchGameData(gameDetails.id);
         }
 
@@ -157,8 +167,8 @@ type cardVal = {
                 setShowToast(false);
                 setAddCartValue({
                     user: emailCart,
-                    gameId:gameDetails?.id|reloadId,
-                    gameUrl:gameUrl,
+                    gameId: gameDetails?.id | reloadId,
+                    gameUrl: gameUrl,
                     gameCardInfo: gameCardInfo,
                 });
             }, 5200);
@@ -169,65 +179,101 @@ type cardVal = {
     }, [showToast]);
 
     useEffect(() => {
-        if(addGame){
+        if (addGame) {
             handleToast();
         }
     }, [addGame]);
 
     useEffect(() => {
-        if(addCart){
+        if (addCart) {
             updateCartValue(addCartValue);
             setAddCart(false);
         }
 
-    }, [addCart,addCartValue]);
+    }, [addCart, addCartValue]);
 
-        useEffect(() => {
-            const navEntries = performance.getEntriesByType("navigation");
-            const isReload = navEntries.length > 0 && (navEntries[0] as PerformanceNavigationTiming).type === "reload";
+    useEffect(() => {
+        const navEntries = performance.getEntriesByType("navigation");
+        const isReload = navEntries.length > 0 && (navEntries[0] as PerformanceNavigationTiming).type === "reload";
 
-            if (isReload) {
-                const numericId = Number(id);
-                setReloadId(numericId);
-                fetchGameData(numericId);
-            }
-        }, []);
+        if (isReload) {
+            const numericId = Number(id);
+            console.log(numericId)
+            setReloadId(numericId);
+            fetchGameData(numericId);
+        }else{
+            setReloadId(gameDetails.id);
+        }
+    }, []);
+
+    useEffect(() => {
+        if(gameDetails.id){
+        setReloadId(gameDetails.id);
+        }
+
+    }, [gameDetails.id]);
     return (
-        <>
-            <div
-                className="w-full max-w-lvw bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
-                <a>
-                    <img className="w-full  h-80 object-contain object-top p-8 rounded-t-lg"
-                         src={gameCardInfo?.background_image || ""} alt={gameCardInfo?.name || "No Name"}/>
-                </a>
-                <div className="px-5 pb-5">
-                    <a >
-                        <h5 className="text-xl font-semibold tracking-tight text-gray-900 dark:text-white">
-                            {gameCardInfo?.name || ""}</h5>
-                    </a>
-                    <div className="flex items-center mt-2.5 mb-5">
-                        <div className="flex items-center space-x-1 rtl:space-x-reverse">
-                            {gameCardInfo?.rating && renderStarRating(gameCardInfo?.rating || 0)}
-                        </div>
-                        <span
-                            className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-sm dark:bg-blue-200
-                            dark:text-blue-800 ms-3">{gameCardInfo?.rating || 0}</span>
+        <div >
+            {cardLoading ? (
+                <div className="h-full flex items-center justify-center">
+                    <Loaders/>
+                </div>
+            ) : (
+                <div
+                    className="w-full max-w-lvw  h-full   rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700
+                    ">
+                    <div className="w-full drop-shadow-2xl drop-shadow-yellow-500/25">
+
+                        <Gamepreview image={gameCardInfo.background_image} name={gameCardInfo.name }
+                         id ={reloadId}/>
+                        {/*<img className="w-full object-contain object-top p-8 rounded-t-lg"*/}
+                        {/*     src={gameCardInfo?.background_image || ""} alt={gameCardInfo?.name || "No Name"}/>*/}
                     </div>
-                    <div className="text-gray-900 dark:text-white"
-                         dangerouslySetInnerHTML={{__html: gameCardInfo?.description || ''}}/>
-                    <div className="flex items-center justify-between">
-                        <span className="text-3xl font-bold text-gray-900 dark:text-white">$599</span>
-                        <a onClick={() => {
-                            setAddGame(true);
-                        }}
-                           className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300
+                    <div className="px-5 pb-5">
+                        <a>
+                            <h5 className="text-xl font-semibold tracking-tight text-white dark:text-white">
+                                {gameCardInfo?.name || ""}</h5>
+                        </a>
+                        <div className="flex items-center mt-1 ">
+                            <div className="flex items-center space-x-1 rtl:space-x-reverse">
+                                {gameCardInfo?.rating && renderStarRating(gameCardInfo?.rating || 0)}
+                            </div>
+                            <span
+                                className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-sm dark:bg-blue-200
+                            dark:text-blue-800 ms-3">{gameCardInfo?.rating || 0}</span>
+
+                        </div>
+                        <div className="flex items-center mt-1 mb-5">
+                            <p className=" text-sm text-gray-400 dark:text-white">PLATFORMS : <span>
+                            {platForms
+                                .sort((a, b) => a.platform.name.localeCompare(b.platform.name))
+                                .map((data, index) => {
+                                    return (
+                                        <span key={index}>
+                                            {index >= 1?",":""}{data.platform.name}
+                                        </span>
+                                    )
+                                })}
+                        </span>
+                            </p>
+                        </div>
+
+
+                        <div className="text-white text-justify dark:text-white"
+                             dangerouslySetInnerHTML={{__html: gameCardInfo?.description || ''}}/>
+                        <div className="flex items-center justify-between">
+                            <span className="text-3xl font-bold text-gray-900 dark:text-white">$599</span>
+                            <a onClick={() => {
+                                setAddGame(true);
+                            }}
+                               className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300
                            font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700
                            dark:focus:ring-blue-800">Add
-                            to cart</a>
+                                to cart</a>
+                        </div>
                     </div>
                 </div>
-            </div>
-
+            )}
             {showToastEmail ? (
                 <>
                     <ToastModalEmail emailCart={emailCart} handleEmail={handleEmail} onClose={() => {
@@ -242,7 +288,9 @@ type cardVal = {
 
                 </>
             ))}
-        </>
+
+
+        </div>
     );
 };
 

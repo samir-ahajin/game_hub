@@ -10,6 +10,7 @@ import {useDebounce} from "react-use";
 import {updateSearchValue} from "../appwrite.ts";
 import { useOutletContext, useLocation, useNavigate  } from "react-router-dom";
 import Loaders2 from "./Loaders2.tsx";
+import Loaders from "./Loaders.tsx";
 
 type StoreContextType = {
     emailCart: string;
@@ -30,6 +31,7 @@ const Store = () => {
 
     const [loaders, setLoaders] = useState(false);
     const [loadingSearch, setLoadingSearch] = useState(false);
+
 
 
     const [gameDetails, setGameDetails] = useState({});
@@ -57,12 +59,12 @@ const Store = () => {
             setLoadingSearch(true)
         }
         try {
-            console.log(type)
+            // console.log(type)
             const endpoint = type == 'genre' ? `${API_BASE_URL}/genres?key=${API_KEY}`
                 : type == 'gameList' && selectedOption != 'All' ? `${API_BASE_URL}/games?genres=${selectedOption.toLowerCase()}&key=${API_KEY}&page=${pageSize}`
                     : type == 'nameSearch' ? `${API_BASE_URL}/games?search=${encodeURIComponent(searchValue)}&key=${API_KEY}&page=${pageSize2}`
                         : `${API_BASE_URL}/games?key=${API_KEY}&page=${pageSize}`;
-    console.log(endpoint)
+
             const response = await fetch(endpoint, API_OPTIONS);
 
 
@@ -96,7 +98,7 @@ const Store = () => {
             }
         } finally {
             if (['genre', 'gameList'].includes(type)){
-                console.log('test2');
+
                 setLoaders(false);
             }
             else if (['nameSearch'].includes(type)) {
@@ -143,6 +145,8 @@ const Store = () => {
             handleSearch();
         }
     }
+
+
 
     //   USEFFECTS
     //getting the default genre list
@@ -242,7 +246,7 @@ const Store = () => {
                 <div>
                     <div className="flex flex-col gap-4 p-1.5 relative">
                         {/* Scrollable list container */}
-                        <div className="max-h-73 overflow-y-auto pr-1">
+                        <div className="max-h-85 overflow-y-auto pr-1">
                             <div className="flex flex-col gap-2">
                                 <div className="flex flex-col gap-2">
                                     {loaders?(
@@ -267,8 +271,8 @@ const Store = () => {
                                                 <span className="text-sm font-medium text-slate-200 truncate">
                                                     {data.name}
                                                 </span>
-                                                    <span className="text-xs text-slate-400 truncate">
-                                                    {data.role || 'Game Info'}
+                                                    <span className="text-sm text-slate-400 truncate">
+                                                    <span className="font-bold">Rate</span> : {data.rating || 'Game Info'}
                                                 </span>
                                                 </div>
                                             </Link>
@@ -317,10 +321,12 @@ const Store = () => {
 
             {/* Main Content (Col Span 8) */}
             <div
-                className="col-span-12 md:col-span-8 p-4 shadow-md bg-gray-900/70 order-2 md:order-2 flex flex-col">
-                {/*//add some context here*/}
-                <Outlet context={{gameDetails,emailCart,handleEmail}} />
+                className="h-full overflow-y-auto pr-1 col-span-12 md:col-span-8 p-4 shadow-md bg-gray-900/70 order-2 md:order-2">
+                <div className="min-h-full  flex items-center justify-center">
+                    <Outlet context={{ gameDetails, emailCart, handleEmail }} />
+                </div>
             </div>
+
 
             <div className="col-span-12 md:col-span-2 p-4 bg-gray-900/70     order-3 md:order-3">
 

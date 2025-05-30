@@ -33,7 +33,7 @@ const Store = () => {
         setLoading(true);
         try{
             await removeId(emailCart,id);
-            await getUserGameList(emailCart) .then((data) => {
+            await getUserGameList(emailCart) .then((data:any) => {
 
                 setDataList(data);
                 handleEmail(emailCart);
@@ -55,7 +55,7 @@ const Store = () => {
         if (emailCart) {
             setLoading(true);
             getUserGameList(emailCart)
-                .then((data) => {
+                .then((data:any) => {
                     setDataList(data);
                 })
                 .catch((err: string) => {

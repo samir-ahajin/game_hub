@@ -128,10 +128,12 @@ export const newUserId = async (user:string) => {
 
 export const validateGame = async (user:string,) => {
 
+
     const userData =
         await database.listDocuments(DATABASE_ID, USERCART_ID, [
             Query.equal('user', user)
         ])
+    console.log(userData)
 
 }
 
