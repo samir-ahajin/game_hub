@@ -4,7 +4,7 @@ import {API_BASE_URL, API_KEY, API_OPTIONS} from '../App.tsx';
 import {useState, useEffect} from "react";
 import ToastModal from "./ToastModal.tsx";
 import ToastModalEmail from "./ToastModalEmail.tsx";
-import {updateCartValue} from "../appwrite.ts";
+import {updateCartValue,checkAddedGame} from "../appwrite.ts";
 import {useParams} from "react-router";
 import Loaders from "./Loaders.tsx";
 import Gamepreview from "./Gamepreview.tsx";
@@ -53,6 +53,7 @@ const Card = ({cardComponents}: cardVal) => {
     const [addGame, setAddGame] = useState(false);
     const [cardLoading, setCardLoading] = useState(false);
     const [platForms, setPlatForms] = useState([]);
+    const [disableAdd, setDisableAdd] = useState(false);
 
     const {id} = useParams();
     const [reloadId, setReloadId] = useState(0);
@@ -150,6 +151,12 @@ const Card = ({cardComponents}: cardVal) => {
         setAddGame(false);
 
     }
+    const checkGame = async (emailCart, gameId) => {
+
+        if (!emailCart || !gameId) return;
+        const result = await checkAddedGame(emailCart, gameId);
+        setDisableAdd(result);
+    };
 
     useEffect(() => {
         if (gameDetails.id) {
@@ -171,6 +178,7 @@ const Card = ({cardComponents}: cardVal) => {
                     gameUrl: gameUrl,
                     gameCardInfo: gameCardInfo,
                 });
+
             }, 5200);
 
             return () => clearInterval(timer);
@@ -186,6 +194,8 @@ const Card = ({cardComponents}: cardVal) => {
 
     useEffect(() => {
         if (addCart) {
+
+            setDisableAdd(true);
             updateCartValue(addCartValue);
             setAddCart(false);
         }
@@ -198,20 +208,33 @@ const Card = ({cardComponents}: cardVal) => {
 
         if (isReload) {
             const numericId = Number(id);
-            console.log(numericId)
+            // console.log(numericId)
+
+
             setReloadId(numericId);
             fetchGameData(numericId);
+            checkGame(emailCart, numericId);
         }else{
             setReloadId(gameDetails.id);
+
+            checkGame(emailCart, gameDetails.id);
         }
     }, []);
 
     useEffect(() => {
         if(gameDetails.id){
         setReloadId(gameDetails.id);
+       checkGame(emailCart, gameDetails.id);
         }
 
+
     }, [gameDetails.id]);
+
+    useEffect(() => {
+        checkGame(emailCart, gameDetails?.id, setDisableAdd);
+    }, [reloadId, emailCart, gameDetails?.id]);
+
+
     return (
         <div >
             {cardLoading ? (
@@ -261,15 +284,14 @@ const Card = ({cardComponents}: cardVal) => {
 
                         <div className="text-white text-justify dark:text-white"
                              dangerouslySetInnerHTML={{__html: gameCardInfo?.description || ''}}/>
-                        <div className="flex items-center justify-between">
-                            <span className="text-3xl font-bold text-gray-900 dark:text-white">$599</span>
+                        <div className="flex items-center justify-between p-4">
+                            <span className="text-3xl font-bold text-gray-900 dark:text-white">  </span>
                             <a onClick={() => {
                                 setAddGame(true);
                             }}
-                               className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300
+                                   className={`text-white ${disableAdd? "pointer-events-none opacity-50 bg-gray-700" : "bg-blue-700"} hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300
                            font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700
-                           dark:focus:ring-blue-800">Add
-                                to cart</a>
+                           dark:focus:ring-blue-800  `}>{disableAdd?"Added":"Add to cart"}</a>
                         </div>
                     </div>
                 </div>

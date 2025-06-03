@@ -11,7 +11,7 @@ import {useEffect, useState, useMemo} from "react";
 import MatrixRain from "./components/MatrixRain.tsx";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
-import {newUserId} from "./appwrite.ts";
+import {getUserGameList, newUserId} from "./appwrite.ts";
 
 
 export const API_BASE_URL = "https://api.rawg.io/api";
@@ -36,7 +36,7 @@ function App() {
     // const [errorDisplay, setErrorDisplay] = useState()
     const [mainBackGroundList, setMainBackGroundList] = useState([])
 
-
+    const [userTotalGames, setUserTotalGames] = useState(0)
     const [emailCart, setEmailCart] = useState("")
     // const [backgroundIndex, setBackgroundIndex] = useState(0)
     // const [pageCount, setPageCount] = useState(1);
@@ -78,16 +78,11 @@ function App() {
     // }
 
     const [navigation, setNavigation] = useState([
-        { name: 'Home', href: '/', current: true },
-        { name: 'Store', href: '/store', current: false },
-        { name: 'Cart', href: '/cart', current: false },
+        {name: 'Home', href: '/', current: true},
+        {name: 'Store', href: '/store', current: false},
+        {name: 'Cart', href: '/cart', current: false},
     ]);
-    // const navigation = useMemo(() => [
-    //     {name: 'Home', href: '/'},
-    //     {name: 'Store', href: '/store'},
-    //     {name: 'Cart', href: '/cart'}
-    // ], []);
-
+    const [dataTotal, setTotalData] = useState(0);
     // const currentTab = useMemo(() => {
     //     return navigation.find((n) => n.current);
     // }, [navigation]);
@@ -123,7 +118,7 @@ function App() {
                 alert(data.error || 'Failed to fetch game of the week from API');
                 setMainBackGroundList([])
             }
-            setMainBackGroundList(data.results.filter((datum:never) => datum.background_image != null) || [])
+            setMainBackGroundList(data.results.filter((datum: never) => datum.background_image != null) || [])
 
         } catch (error) {
             console.log(error.message);
@@ -134,42 +129,30 @@ function App() {
 
         setEmailCart(email);
     }
+    const updateUserGameTotal = async (user: string) => {
+        const list = await getUserGameList(user);
+        setTotalData(list.total)
+        // console.log(list.total);
+    }
 
     //Setting the background image
     useEffect(() => {
 
         fetchGameOfTheWeek();
+        if (emailCart != "") {
+
+            updateUserGameTotal(emailCart);
+        }
     }, [])
 
 
     useEffect(() => {
-        newUserId(emailCart);
-    }, [emailCart]);
 
-    // useEffect(() => {
-    //     if (mainBackGroundList.length === 0) return;
-    //
-    //     // Set the background image every 10 seconds
-    //     const interval = setInterval(() => {
-    //         setBackgroundIndex((prevIndex) => (prevIndex + 1) % mainBackGroundList.length);
-    //     }, 10000); // 10 seconds
-    //
-    //     return () => clearInterval(interval); // Cleanup on unmount
-    // }, [mainBackGroundList]);
-    //
-    // useEffect(() => {
-    //
-    //         if (mainBackGroundList.length > 0) {
-    //             const currentGame = mainBackGroundList[backgroundIndex];
-    //             // @ts-ignore
-    //             setBgImage(currentGame.background_image);
-    //
-    //         }
-    //     }
-    //     ,
-    //     [mainBackGroundList, backgroundIndex]
-    // )
-    // ;
+        newUserId(emailCart);
+        if (emailCart != "") {
+            updateUserGameTotal(emailCart);
+        }
+    }, [emailCart]);
 
     return (
         <>
@@ -195,18 +178,28 @@ function App() {
                                     </DisclosureButton>
                                 </div>
                                 <div className="flex row w-full sm:items-stretch sm:justify-end">
-                                    <div className="basis-1/3 shrink-0 items-center  sm:justify-self-center">
-                                        <span className="font-mono font-extrabold text-1xl sm:text-4xl">G-HUB</span>
+                                    <div className={`${emailCart?"grid grid-rows-2":""} basis-2/3 shrink-0`}>
+                                        {/* Title */}
+                                        <div className="flex-col items-center">
+                                            <span className="font-mono font-extrabold text-3xl sm:text-4xl">G-HUB</span>
+                                        </div>
+
+                                        {/* Greeting */}
+                                        {emailCart && (<div className="flex items-start basis-1/3">
+                                            <span className="text-sm sm:text-base text-gray-200">{emailCart?`Email : ${emailCart}`: ""}</span>
+                                            </div>)}
+
                                     </div>
-                                    <div className="basis-2/3 hidden sm:ml-6 sm:block justify-items-end">
-                                        <div className="flex space-x-4 indicator">
+                                    <div className="basis-1/3 hidden sm:ml-6 sm:block content-center justify-items-end">
+                                        <div className="flex space-x-4 indicator ">
                                             {updatedNavigation.map((item) => (
                                                 <div
                                                     key={item.name}
                                                     className={item.name === 'Cart' ? 'indicator relative flex items-center' : 'flex items-center'}
                                                 >
                                                     {item.name === 'Cart' && (
-                                                        <span className="indicator-item badge badge-secondary badge-xs top-0 right-0">{emailCart?1:0}</span>
+                                                        <span
+                                                            className="indicator-item badge badge-secondary badge-xs top-0 right-0">{dataTotal}</span>
                                                     )}
                                                     <Link
                                                         to={item.href}
@@ -239,7 +232,7 @@ function App() {
 
 
                         <DisclosurePanel className="sm:hidden bg-gray-900/25 z-50 relative">
-                            <div className="space-y-1 px-2 pt-2 pb-3">
+                            <div className="bg-gray-900/45 space-y-1 px-2 pt-2 pb-3">
                                 {updatedNavigation.map((item) => (
                                     <div
                                         key={item.name}
@@ -271,7 +264,8 @@ function App() {
                                             {item.name}
                                         </Link>
                                         {item.name === 'Cart' && (
-                                            <span className="indicator-item badge badge-secondary badge-xs top-1 right-1">{emailCart?1:0}</span>
+                                            <span
+                                                className="indicator-item badge badge-secondary badge-xs top-1 right-1">{dataTotal}</span>
                                         )}
                                     </div>
                                 ))}
@@ -283,7 +277,7 @@ function App() {
                 </div>
 
                 <div className="z-0  h-9/10 flex items-center justify-center relative ">
-                    <Outlet context={{emailCart, handleEmail, mainBackGroundList}}
+                    <Outlet context={{emailCart, handleEmail, mainBackGroundList, updateUserGameTotal}}
                     />
                 </div>
 

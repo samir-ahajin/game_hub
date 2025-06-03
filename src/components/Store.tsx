@@ -10,7 +10,6 @@ import {useDebounce} from "react-use";
 import {updateSearchValue} from "../appwrite.ts";
 import { useOutletContext, useLocation, useNavigate  } from "react-router-dom";
 import Loaders2 from "./Loaders2.tsx";
-import Loaders from "./Loaders.tsx";
 
 type StoreContextType = {
     emailCart: string;
@@ -18,9 +17,9 @@ type StoreContextType = {
 };
 
 const Store = () => {
-    const {emailCart,handleEmail} = useOutletContext<StoreContextType>();
+    const {emailCart,handleEmail,mainBackGroundList} = useOutletContext<StoreContextType>();
 
-    
+
     const [genres, setGenres] = useState([])
     const [selectedOption, setSelectedOption] = useState('All');
     const [gameList, setGameList] = useState([]);
@@ -28,7 +27,6 @@ const Store = () => {
     const [pageSize2, setPageSize2] = useState(1)
     const [searchValue, setSearchValue] = useState("")
     const [searchedGame, setSearchedGame] = useState([]);
-
     const [loaders, setLoaders] = useState(false);
     const [loadingSearch, setLoadingSearch] = useState(false);
 
@@ -49,6 +47,8 @@ const Store = () => {
 
 
     //   FUNCTION //
+
+
     // api getting data
     const getGames = async (type) => {
         if (['genre', 'gameList'].includes(type)) {
@@ -161,6 +161,7 @@ const Store = () => {
 
         getGames('genre');
         getGames('all');
+
     }, []);
 
     useEffect(() => {
@@ -226,6 +227,7 @@ const Store = () => {
     return (
         <div className=" w-full h-10/10 grid grid-cols-12 gap-4">
             {/* Left Column (Col Span 2) */}
+
             <div className="col-span-12 md:col-span-2 p-4 bg-gray-900/70 order-1 md:order-1">
                 <div className="flex flex-wrap items-center gap-2">
                     <div className="mb-2 sm:mb-0">
@@ -321,13 +323,13 @@ const Store = () => {
 
             {/* Main Content (Col Span 8) */}
             <div
-                className="h-full overflow-y-auto pr-1 col-span-12 md:col-span-8 p-4 shadow-md bg-gray-900/70 order-2 md:order-2">
-                <div className="min-h-full  flex items-center justify-center">
+                className="col-span-12 md:col-span-8 p-2 shadow-md bg-gray-900/70 order-2 md:order-2 "       >
+                <div className="min-h-full flex flex-col">
                     <Outlet context={{ gameDetails, emailCart, handleEmail }} />
                 </div>
             </div>
 
-
+            {/* Right Column (Col Span 2) */}
             <div className="col-span-12 md:col-span-2 p-4 bg-gray-900/70     order-3 md:order-3">
 
 

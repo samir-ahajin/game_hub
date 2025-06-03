@@ -12,13 +12,13 @@ type imageVal = {
 const Gamepreview = ({image, name, id}: imageVal) => {
 
     const [hover, setHover] = useState(false);
-    const [movieData, setMovieData] = useState("");
+    const [movieData, setMovieData] = useState("N/A");
     const [loadMovie, setLoadMovie] = useState(false);
     const videoRef = useRef<HTMLVideoElement>(null);
 
     const fetchVideo = async (dataId: number) => {
         const endpoint = `${API_BASE_URL}/games/${dataId}/movies?key=${API_KEY}`;
-        console.log(endpoint);
+        // console.log(endpoint);
         setLoadMovie(true)
         await fetch(endpoint, API_OPTIONS)
             .then((response) => {
@@ -28,7 +28,7 @@ const Gamepreview = ({image, name, id}: imageVal) => {
                 return response.json();
             })
             .then((data) => {
-                console.log(data)
+                // console.log(data)
                 const moviesData = data.results;
                 const moviesTrailer = []
                 for (const movie of moviesData) {
@@ -85,14 +85,14 @@ const Gamepreview = ({image, name, id}: imageVal) => {
         }else{
             setMovieData("")
         }
-        console.log(movieData);
+        // console.log(movieData);
 
     }, [id]);
 
     return (
         <>
             <div
-                className="relative w-full h-90 overflow-hidden  shadow-lg"
+                className="relative w-full h-64 overflow-hidden  shadow-lg"
                 onMouseEnter={() => setHover(true)}
                 onMouseLeave={() => setHover(false)}
             >
@@ -100,7 +100,7 @@ const Gamepreview = ({image, name, id}: imageVal) => {
                 {loadMovie ? (<Loaders2/>) :
                     (<>
                             <img
-                                src={image || ""}
+                                src={image || "N/A"}
                                 alt={name + id || "No Name"}
                                 className={`absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-500 ${
                                     hover && !(movieData === "")  ? "opacity-0" : "opacity-100"
@@ -120,7 +120,7 @@ const Gamepreview = ({image, name, id}: imageVal) => {
                 {/* Video */}
                 <video
                     ref={videoRef}
-                    src={movieData}
+                    src={movieData || "N/A"}
                     className={`absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-500 ${
                         hover && !(movieData === "") ? "opacity-100" : "opacity-0"
                     }`}

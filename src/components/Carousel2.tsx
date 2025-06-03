@@ -1,6 +1,7 @@
 // @ts-nocheck
 import {useEffect, useState} from "react";
 import {API_BASE_URL,API_KEY,API_OPTIONS} from '../App.tsx';
+import Gamepreview from "./Gamepreview.tsx";
 
 type Feature = {
     id: string;
@@ -82,19 +83,22 @@ const Carousel2 = ({features}: CarouselProps) => {
                 {/* Left: Image */}
                 {current?.background_image && (
                     <div className="relative w-full md:w-1/2 perspective">
-                        {/* Shadowed duplicate */}
+                         {/*Shadowed duplicate */}
                         <img
                             src={current.background_image}
                             alt={current.name || "Game Image"}
-                            className="absolute top-2 left-2 w-full h-full object-cover  opacity-20 blur-sm scale-105 z-0"
-                        />
+                            className="absolute top-2 left-2 w-full h-full object-cover  opacity-20 blur-sm scale-105 z-0"/>
 
                         {/* Rotated Image */}
-                        <img
-                            src={current.background_image}
-                            alt={current.name || "Game Image"}
-                            className="relative z-10 w-full h-full max-h-64 object-cover  ring-2 white; shadow-3xl/30  transform-style preserve-3d custom-rotate-y"
-                        />
+                        <div   className="relative z-10 w-full h-64 max-h-84 object-cover  ring-2 white; shadow-3xl/30  transform-style preserve-3d custom-rotate-y"
+                        >
+                            <Gamepreview image={current.background_image} name={current.name || "Game Image" }
+                                         id ={current.id}/>
+                        </div>
+                        {/*<img*/}
+                        {/*    src={current.background_image}*/}
+                        {/*    alt={current.name || "Game Image"}*/}
+                        {/*          />*/}
                     </div>
                 )}
 

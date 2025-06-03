@@ -133,7 +133,7 @@ export const validateGame = async (user:string,) => {
         await database.listDocuments(DATABASE_ID, USERCART_ID, [
             Query.equal('user', user)
         ])
-    console.log(userData)
+    console.log(userData);
 
 }
 
@@ -144,7 +144,6 @@ export const getUserGameList = async (user:string) => {
             Query.equal('user', user),
         ])
 
-         console.log(userData)
         return userData;
     }
     catch (err){
@@ -162,7 +161,7 @@ export const removeId = async (user:string,id:string) => {
 
         if(userData.documents.length > 0) {
             const document_id = userData.documents[0]['$id'];
-            console.log(document_id);
+
 
             await database.deleteDocument(
                 DATABASE_ID,USERCART_ID,document_id
@@ -175,4 +174,20 @@ export const removeId = async (user:string,id:string) => {
     catch(err){
         console.log(err);
     }
+}
+
+   export const checkAddedGame = async (user:string,id:number) => {
+
+    if(user == "" || user == undefined)return false;
+
+    const gameAlreadyAdded = await database.listDocuments(DATABASE_ID, USERCART_ID, [
+        Query.equal('game_id', id),
+        Query.equal('user', user)
+    ])
+
+
+    return gameAlreadyAdded.documents.length > 0;
+
+
+
 }
